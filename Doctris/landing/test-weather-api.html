@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Test Weather API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🌤️ Test Weather API</h1>
+    
+    <div>
+        <label>Thành phố: </label>
+        <input type="text" id="cityInput" value="Hanoi" placeholder="Nhập tên thành phố...">
+        <button onclick="testWeatherAPI()">Test API</button>
+        <button onclick="testWithoutAPI()">Test Fallback</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_KEY = 'd1ca006774aa4d9491d21940250611';
+
+        async function testWeatherAPI() {
+            const city = document.getElementById('cityInput').value || 'Hanoi';
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<div class="result info">🔄 Đang test API...</div>';
+
+            try {
+                // Test Weather API
+                const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&lang=vi`;
+                console.log('Testing URL:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Hiển thị kết quả thành công
+                resultsDiv.innerHTML = `
+                    <div class="result success">
+                        <h3>✅ Weather API hoạt động tốt!</h3>
+                        <p><strong>Địa điểm:</strong> ${data.location.name}, ${data.location.country}</p>
+                        <p><strong>Nhiệt độ:</strong> ${data.current.temp_c}°C</p>
+                        <p><strong>Thời tiết:</strong> ${data.current.condition.text}</p>
+                        <p><strong>Độ ẩm:</strong> ${data.current.humidity}%</p>
+                        <p><strong>Gió:</strong> ${data.current.wind_kph} km/h</p>
+                        <p><strong>Tầm nhìn:</strong> ${data.current.vis_km} km</p>
+                    </div>
+                    <div class="result info">
+                        <h4>📊 Raw API Response:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Weather API Error:', error);
+                
+                // Hiển thị lỗi chi tiết
+                resultsDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Lỗi Weather API</h3>
+                        <p><strong>Lỗi:</strong> ${error.message}</p>
+                        <p><strong>API Key:</strong> ${API_KEY}</p>
+                        <p><strong>URL:</strong> ${url}</p>
+                    </div>
+                    <div class="result info">
+                        <h4>🔧 Cách khắc phục:</h4>
+                        <ul>
+                            <li>Kiểm tra API key có đúng không</li>
+                            <li>Kiểm tra kết nối internet</li>
+                            <li>Thử với thành phố khác</li>
+                            <li>Xem console browser (F12) để debug</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        function testWithoutAPI() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Test fallback data
+            const fallbackData = {
+                temperature: 15,
+                condition: 'Nhiều mây',
+                humidity: 75,
+                windSpeed: 10,
+                feelsLike: 13,
+                uvIndex: 3,
+                visibility: 8,
+                location: 'Hà Nội, Vietnam'
+            };
+            
+            resultsDiv.innerHTML = `
+                <div class="result info">
+                    <h3>🔄 Chế độ Fallback (Không cần API)</h3>
+                    <p><strong>Địa điểm:</strong> ${fallbackData.location}</p>
+                    <p><strong>Nhiệt độ:</strong> ${fallbackData.temperature}°C</p>
+                    <p><strong>Thời tiết:</strong> ${fallbackData.condition}</p>
+                    <p><strong>Độ ẩm:</strong> ${fallbackData.humidity}%</p>
+                    <p><strong>Gió:</strong> ${fallbackData.windSpeed} km/h</p>
+                    <p><strong>Tầm nhìn:</strong> ${fallbackData.visibility} km</p>
+                    <p><em>Đây là dữ liệu giả lập để test khi không có API</em></p>
+                </div>
+            `;
+        }
+
+        // Test ngay khi load trang
+        window.onload = function() {
+            testWeatherAPI();
+        };
+    </script>
+</body>
+</html>

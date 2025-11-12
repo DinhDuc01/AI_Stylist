@@ -1,0 +1,374 @@
+/* 
+ * Modern & Clean Color Theme for LookAI
+ * Nền: Trắng (#FFFFFF) hoặc trắng ngà (#F8F9FA)
+ * Chữ chính: Đen xám đậm (#212529) hoặc xám trung tính (#333333)
+ * Màu nhấn (Accent): Cyan (#17D4E3) dùng cho nút, icon, link hover
+ */
+
+:root {
+    /* Primary Colors - Modern Cyan Theme */
+    --primary-color: #17D4E3;
+    --primary-hover: #00FFFF;
+    --primary-light: rgba(23, 212, 227, 0.1);
+    --primary-border: rgba(23, 212, 227, 0.2);
+    
+    /* Background Colors */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FA;
+    --bg-light: #FAFBFC;
+    --bg-dark: #212529;
+    
+    /* Text Colors */
+    --text-primary: #212529;
+    --text-secondary: #333333;
+    --text-muted: #6C757D;
+    --text-light: #8E9297;
+    --text-white: #FFFFFF;
+    
+    /* Border Colors */
+    --border-color: #E9ECEF;
+    --border-light: #F1F3F4;
+}
+
+/* Override Primary Colors */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: var(--text-primary);
+}
+
+.btn-soft-primary {
+    background-color: var(--primary-light);
+    border-color: var(--primary-border);
+    color: var(--primary-color);
+}
+
+.btn-soft-primary:hover,
+.btn-soft-primary:focus {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+/* Background Colors */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.bg-light {
+    background-color: var(--bg-secondary) !important;
+}
+
+.bg-white {
+    background-color: var(--bg-primary) !important;
+}
+
+/* Text Colors */
+.text-dark {
+    color: var(--text-primary) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover,
+a:focus {
+    color: var(--primary-hover);
+}
+
+a.text-primary:hover,
+a.text-primary:focus {
+    color: var(--primary-hover) !important;
+}
+
+/* Navigation */
+.navigation.sticky {
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-primary);
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+    color: var(--primary-color);
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+.card-body {
+    color: var(--text-primary);
+}
+
+/* Features */
+.features.feature-primary .icon {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.features.feature-primary:hover .icon {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+/* Icons */
+.text-primary.h2,
+.text-primary.h3 {
+    color: var(--primary-color) !important;
+}
+
+/* Badges */
+.badge-soft-primary {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-border);
+}
+
+/* Tables */
+.table {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.table th {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.table td {
+    border-color: var(--border-color);
+}
+
+.bg-soft-primary.rounded {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--text-primary);
+    color: var(--text-white);
+}
+
+.footer .text-foot {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer .text-foot:hover {
+    color: var(--primary-color);
+}
+
+.footer-head {
+    color: var(--text-white);
+}
+
+/* Forms */
+.form-control {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem var(--primary-light);
+}
+
+/* Buttons Icon */
+.btn-icon {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+.btn-icon:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: var(--text-primary);
+}
+
+/* Team Cards Social Icons */
+.team-social .btn-soft-primary {
+    background-color: var(--primary-light);
+    border-color: var(--primary-border);
+    color: var(--primary-color);
+}
+
+.team-social .btn-soft-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+/* Dropdown */
+.dropdown-menu {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+/* Offcanvas */
+.offcanvas {
+    background-color: var(--bg-primary);
+}
+
+.offcanvas-header {
+    border-bottom-color: var(--border-color);
+}
+
+/* Video Play Button */
+.play-btn {
+    background-color: var(--primary-color) !important;
+    color: var(--text-white) !important;
+}
+
+.play-btn:hover {
+    background-color: var(--primary-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Counter */
+.counter-box h1 {
+    color: var(--text-white);
+}
+
+.counter-head {
+    color: var(--text-white);
+}
+
+/* Search */
+.subcribe-form input {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.subcribe-form input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem var(--primary-light);
+}
+
+/* Back to top */
+.back-to-top {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+.back-to-top:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: var(--text-primary);
+}
+
+/* Hero Section */
+.bg-overlay.bg-overlay-dark {
+    background-color: rgba(33, 37, 41, 0.7);
+}
+
+/* Shadows */
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(23, 212, 227, 0.15) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(23, 212, 227, 0.175) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navigation.sticky {
+        background-color: var(--bg-primary);
+    }
+    
+    .navbar-toggler {
+        border-color: var(--primary-color);
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem var(--primary-light);
+    }
+}
+
+/* Additional modern touches */
+.card:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+    box-shadow: 0 0.75rem 1.5rem rgba(23, 212, 227, 0.2);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.features:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Logo and branding adjustments */
+.logo img {
+    filter: brightness(1.1);
+}
+
+/* Modern gradient backgrounds for special sections */
+.bg-half-260 {
+    background: linear-gradient(135deg, var(--text-primary) 0%, rgba(33, 37, 41, 0.9) 100%);
+}
+
+/* Enhanced focus states for accessibility */
+*:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.btn:focus,
+.form-control:focus,
+.btn-close:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem var(--primary-light);
+}

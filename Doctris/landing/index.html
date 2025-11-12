@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>AI Stylist - Trợ Lý Thời Trang AI Thông Minh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trang chủ của LookAI, trợ lý thời trang cá nhân sử dụng AI để quản lý tủ đồ, phối đồ theo yêu cầu, thời tiết và gợi ý mua sắm." />
+    <meta name="keywords" content="AI Stylist, Phối đồ, Thời trang, Tủ đồ ảo, Trợ lý thời trang, Gợi ý trang phục" />
+    <meta name="author" content="Shreethemes" />
+    <meta name="email" content="support@shreethemes.in" />
+    <meta name="website" content="../../../index.html" />
+    <meta name="Version" content="v1.2.0" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="../assets/images/LookAILogo.png">
+    <!-- Bootstrap -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons -->
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <!-- SLIDER -->
+    <link rel="stylesheet" href="../assets/css/tiny-slider.css"/>
+    <!-- Css -->
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    
+    <!-- Custom Sidebar Styles -->
+    <style>
+        .ai-stylist-sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1050;
+            overflow-y: auto;
+        }
+        
+        .ai-stylist-sidebar.active {
+            right: 0;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #17D4E3, #00FFFF);
+            color: white;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            padding: 15px 10px;
+            cursor: pointer;
+            z-index: 1051;
+            box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            background: linear-gradient(135deg, #00FFFF, #17D4E3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .sidebar-content {
+            padding: 20px;
+            color: white;
+        }
+        
+        .sidebar-image-container {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .sidebar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .sidebar-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-sidebar {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- AI Stylist Sidebar -->
+    <div class="ai-stylist-sidebar" id="aiStylistSidebar">
+        <button class="close-sidebar" onclick="toggleSidebar()">×</button>
+        <div class="sidebar-content">
+            <div class="sidebar-title">
+                <i class="ri-shirt-fill me-2"></i>
+                AI Stylist Gallery
+            </div>
+            <div class="sidebar-description">
+                Khám phá các xu hướng thời trang mới nhất
+            </div>
+            
+            <div class="sidebar-image-container">
+                <img id="sidebarImage" class="sidebar-image" src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop" alt="Fashion Style">
+            </div>
+            
+            <div class="text-center">
+                <h6 id="imageTitle">Phong Cách Hiện Đại</h6>
+                <p class="small opacity-75" id="imageDescription">Thời trang thanh lịch cho phụ nữ hiện đại</p>
+            </div>
+            
+            <div class="mt-4">
+                <button class="btn btn-light btn-sm w-100 mb-2" onclick="window.open('ai-stylist.html', '_blank')">
+                    <i class="ri-robot-line me-2"></i>AI Phối Đồ
+                </button>
+                <button class="btn btn-outline-light btn-sm w-100 mb-2" onclick="window.open('wardrobe.html', '_blank')">
+                    <i class="ri-shirt-line me-2"></i>Tủ Đồ Số
+                </button>
+                <button class="btn btn-outline-light btn-sm w-100" onclick="window.open('virtual-fitting.html', '_blank')">
+                    <i class="ri-t-shirt-air-line me-2"></i>Thử Đồ Ảo
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Xem thêm phong cách">
+        <i class="ri-image-line"></i>
+    </button>
+    
+    <!-- Loader -->
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Loader -->
+    
+    <!-- Navbar STart -->
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <!-- Logo container-->
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                    <img src="../assets/images/logo-light.png" height="24" class="logo-dark-mode" alt="LookAI Logo">
+                </a>
+            </div>
+            <!-- End Logo container-->
+            
+            <!-- Start Mobile Toggle -->
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <!-- Mobile menu toggle-->
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                    <!-- End mobile menu toggle-->
+                </div>
+            </div>
+            <!-- End Mobile Toggle -->
+
+            <!-- Start Dropdown -->
+            <ul class="dropdowns list-inline mb-0">
+                <li class="list-inline-item mb-0">
+                    <a href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        <div class="btn btn-icon btn-pills btn-primary"><i data-feather="settings" class="fea icon-sm"></i></div>
+                    </a>
+                </li>
+
+                <li class="list-inline-item mb-0 ms-1">
+                    <a href="javascript:void(0)" class="btn btn-icon btn-pills btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+                        <i class="uil uil-search"></i>
+                    </a>
+                </li>
+
+                <li class="list-inline-item mb-0 ms-1">
+                    <div class="dropdown dropdown-primary">
+                        <button type="button" class="btn btn-pills btn-soft-primary dropdown-toggle p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="https://images.unsplash.com/photo-1494790108755-2616c9c9b8d7?w=150&h=150&fit=crop&crop=face" class="avatar avatar-ex-small rounded-circle" alt="Stylist Avatar"></button>
+                        <div class="dropdown-menu dd-menu dropdown-menu-end bg-white shadow border-0 mt-3 py-3" style="min-width: 200px;">
+                            <a class="dropdown-item d-flex align-items-center text-dark" href="doctor-profile.html">
+                                <img src="https://images.unsplash.com/photo-1494790108755-2616c9c9b8d7?w=150&h=150&fit=crop&crop=face" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                <div class="flex-1 ms-2">
+                                    <span class="d-block mb-1">Minh Anh</span>
+                                    <small class="text-muted">AI Stylist Expert</small>
+                                </div>
+                            </a>
+                            <a class="dropdown-item text-dark" href="doctor-dashboard.html"><span class="mb-0 d-inline-block me-1"><i class="uil uil-dashboard align-middle h6"></i></span> Bảng điều khiển</a>
+                            <a class="dropdown-item text-dark" href="doctor-profile-setting.html"><span class="mb-0 d-inline-block me-1"><i class="uil uil-setting align-middle h6"></i></span> Cài đặt hồ sơ</a>
+                            <div class="dropdown-divider border-top"></div>
+                            <a class="dropdown-item text-dark" href="login.html"><span class="mb-0 d-inline-block me-1"><i class="uil uil-sign-out-alt align-middle h6"></i></span> Đăng xuất</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <!-- Start Dropdown -->
+    
+            <div id="navigation">
+                <!-- Navigation Menu-->   
+                <ul class="navigation-menu nav-left nav-light">
+                    <li class="has-submenu parent-menu-item">
+                        <a href="javascript:void(0)">Trang chủ</a><span class="menu-arrow"></span>
+                        <ul class="submenu">
+                            <li><a href="index.html" class="sub-menu-item">Trang chủ 1</a></li>
+                            <li><a href="index-two.html" class="sub-menu-item">Trang chủ 2</a></li>
+                            <li><a href="index-three.html" class="sub-menu-item">Trang chủ 3</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-submenu parent-parent-menu-item">
+                        <a href="javascript:void(0)">Stylists</a><span class="menu-arrow"></span>
+                        <ul class="submenu">
+                            <li class="has-submenu parent-menu-item">
+                                <a href="javascript:void(0)" class="menu-item"> Bảng điều khiển </a><span class="submenu-arrow"></span>
+                                <ul class="submenu">
+                                    <li><a href="doctor-dashboard.html" class="sub-menu-item">Bảng điều khiển</a></li>
+                                    <li><a href="doctor-appointment.html" class="sub-menu-item">Lịch hẹn tư vấn</a></li>
+                                    <li><a href="patient-list.html" class="sub-menu-item">Danh sách khách hàng</a></li>
+                                    <li><a href="doctor-schedule.html" class="sub-menu-item">Lịch làm việc</a></li>
+                                    <li><a href="invoices.html" class="sub-menu-item">Hóa đơn</a></li>
+                                    <li><a href="patient-review.html" class="sub-menu-item">Đánh giá</a></li>
+                                    <li><a href="doctor-messages.html" class="sub-menu-item">Tin nhắn</a></li>
+                                    <li><a href="doctor-profile.html" class="sub-menu-item">Hồ sơ Stylist</a></li>
+                                    <li><a href="doctor-profile-setting.html" class="sub-menu-item">Cài đặt hồ sơ</a></li>
+                                    <li><a href="doctor-chat.html" class="sub-menu-item">Trò chuyện</a></li>
+                                    <li><a href="login.html" class="sub-menu-item">Đăng nhập</a></li>
+                                    <li><a href="signup.html" class="sub-menu-item">Đăng ký</a></li>
+                                    <li><a href="forgot-password.html" class="sub-menu-item">Quên mật khẩu</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="doctor-team-one.html" class="sub-menu-item">Đội ngũ Stylist 1</a></li>
+                            <li><a href="doctor-team-two.html" class="sub-menu-item">Đội ngũ Stylist 2</a></li>
+                            <li><a href="doctor-team-three.html" class="sub-menu-item">Đội ngũ Stylist 3</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-submenu parent-menu-item">
+                        <a href="javascript:void(0)">Người dùng</a><span class="menu-arrow"></span>
+                        <ul class="submenu">
+                            <li><a href="patient-dashboard.html" class="sub-menu-item">Bảng điều khiển</a></li>
+                            <li><a href="patient-profile.html" class="sub-menu-item">Hồ sơ cá nhân</a></li>
+                            <li><a href="booking-appointment.html" class="sub-menu-item">Đặt lịch tư vấn</a></li>
+                            <li><a href="patient-invoice.html" class="sub-menu-item">Hóa đơn của tôi</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-submenu parent-menu-item">
+                        <a href="javascript:void(0)">Cửa hàng</a><span class="menu-arrow"></span>
+                        <ul class="submenu">
+                            <li><a href="pharmacy.html" class="sub-menu-item">Cửa hàng chính</a></li>
+                            <li><a href="pharmacy-shop.html" class="sub-menu-item">Mua sắm</a></li>
+                            <li><a href="pharmacy-product-detail.html" class="sub-menu-item">Chi tiết sản phẩm</a></li>
+                            <li><a href="pharmacy-shop-cart.html" class="sub-menu-item">Giỏ hàng</a></li>
+                            <li><a href="pharmacy-checkout.html" class="sub-menu-item">Thanh toán</a></li>
+                            <li><a href="pharmacy-account.html" class="sub-menu-item">Tài khoản</a></li>
+                        </ul>
+                    </li>
+    
+                    <li class="has-submenu parent-parent-menu-item"><a href="javascript:void(0)">Trang</a><span class="menu-arrow"></span>
+                        <ul class="submenu">
+                            <li><a href="aboutus.html" class="sub-menu-item"> Về chúng tôi</a></li>
+                            <li><a href="departments.html" class="sub-menu-item">Tính năng</a></li>
+                            <li><a href="faqs.html" class="sub-menu-item">Câu hỏi thường gặp</a></li>
+                            <li class="has-submenu parent-menu-item">
+                                <a href="javascript:void(0)" class="menu-item"> Blogs </a><span class="submenu-arrow"></span>
+                                <ul class="submenu">
+                                    <li><a href="blogs.html" class="sub-menu-item">Bài viết</a></li>
+                                    <li><a href="blog-detail.html" class="sub-menu-item">Chi tiết bài viết</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="terms.html" class="sub-menu-item">Điều khoản & Chính sách</a></li>
+                            <li><a href="privacy.html" class="sub-menu-item">Chính sách bảo mật</a></li>
+                            <li><a href="error.html" class="sub-menu-item">Lỗi 404 !</a></li>
+                            <li><a href="contact.html" class="sub-menu-item">Liên hệ</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../admin/index.html" class="sub-menu-item" target="_blank">Admin</a></li>
+                </ul><!--end navigation menu-->
+            </div><!--end navigation-->
+        </div><!--end container-->
+    </header><!--end header-->
+    <!-- Navbar End -->
+
+    <!-- Start Hero -->
+    <section class="bg-half-260 d-table w-100" style="background: url('') center;">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 mt-lg-0">
+                <div class="col-12">
+                    <div class="heading-title">
+                        <img src="../assets/images/eye-logo.png" height="80" alt="">
+                        <h4 class="display-4 fw-bold text-white title-dark mt-3 mb-4">Trợ Lý Thời Trang <br> AI Của Riêng Bạn</h4>
+                        <p class="para-desc text-white-50 mb-0">Khám phá phong cách cá nhân, quản lý tủ đồ và nhận gợi ý phối đồ thông minh cho mọi hoàn cảnh từ trợ lý AI của chúng tôi.</p>
+                        
+                        <div class="mt-4 pt-2">
+                            <a href="wardrobe.html" class="btn btn-primary">Bắt đầu hành trình phong cách</a>
+                            <p class="text-white-50 mb-0 mt-2">Áp dụng T&C. Vui lòng đọc <a href="terms.html" class="text-white-50">Điều khoản và Điều kiện <i class="ri-arrow-right-line align-middle"></i></a></p>
+                        </div>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </section><!--end section-->
+    <!-- End Hero -->
+
+    <!-- Start -->
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="features-absolute bg-white shadow rounded overflow-hidden card-group">
+                        <div class="card border-0 bg-light p-4">
+                            <i class="ri-shirt-fill text-primary h2 mb-0"></i>
+                            <h5 class="mt-1">Tủ Đồ Số</h5>
+                            <p class="text-muted mt-2">Quản lý tất cả trang phục của bạn ở một nơi. Tải ảnh lên và để AI tự động phân loại.</p>
+                            <a href="wardrobe.html" class="text-primary">Khám phá ngay <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                        
+                        <div class="card border-0 p-4">
+                            <i class="ri-robot-fill text-primary h2 mb-0"></i>
+                            <h5 class="mt-1">AI Phối Đồ</h5>
+                            <p class="text-muted mt-2">Nhận gợi ý trang phục tức thì dựa trên thời tiết, sự kiện hoặc món đồ bạn chọn.</p>
+                            <a href="ai-stylist.html" class="text-primary">Thử ngay <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+
+                        <div class="card border-0 bg-light p-4">
+                             <i class="ri-t-shirt-air-fill text-primary h2 mb-0"></i>
+                            <h5 class="mt-1">Thử Đồ Ảo</h5>
+                            <ul class="list-unstyled mt-2">
+                                <li class="d-flex justify-content-between">
+                                    <p class="text-muted mb-0">Tạo Avatar 3D</p>
+                                    <p class="text-primary mb-0">Chính xác</p>
+                                </li>
+                                <li class="d-flex justify-content-between">
+                                    <p class="text-muted mb-0">Thử đồ từ cửa hàng</p>
+                                    <p class="text-primary mb-0">Ngay lập tức</p>
+                                </li>
+                                <li class="d-flex justify-content-between">
+                                    <p class="text-muted mb-0">Chia sẻ với bạn bè</p>
+                                    <p class="text-primary mb-0">Dễ dàng</p>
+                                </li>
+                            </ul>
+                            <a href="virtual-fitting.html" class="text-primary">Trải nghiệm ngay <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+
+       
+
+        <div class="container mt-100 mt-60">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="section-title mb-4 pb-2 text-center">
+                        <span class="badge badge-pill badge-soft-primary mb-3">Tính năng</span>
+                        <h4 class="title mb-4">Dịch Vụ Thời Trang Của Chúng Tôi</h4>
+                        <p class="text-muted mx-auto para-desc mb-0">Trải nghiệm một hệ sinh thái thời trang toàn diện, từ quản lý cá nhân đến khám phá và mua sắm các xu hướng mới nhất.</p>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+
+            <div class="row">
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-folders-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="wardrobe.html" class="title text-dark h5">Quản lý tủ đồ</a>
+                            <p class="text-muted mt-3">Số hóa tủ quần áo của bạn một cách thông minh và tiện lợi.</p>
+                            <a href="wardrobe.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-lightbulb-flash-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="ai-stylist.html" class="title text-dark h5">Gợi ý AI</a>
+                            <p class="text-muted mt-3">Nhận các set đồ được cá nhân hóa cho mọi hoạt động hàng ngày.</p>
+                            <a href="ai-stylist.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-cloud-windy-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="smart-weather-outfit.html" class="title text-dark h5">Phối đồ theo thời tiết</a>
+                            <p class="text-muted mt-3">Luôn mặc đẹp và phù hợp với điều kiện thời tiết thực tế.</p>
+                            <a href="smart-weather-outfit.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-shopping-bag-3-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="shopping-assistant.html" class="title text-dark h5">Trợ lý mua sắm</a>
+                            <p class="text-muted mt-3">Tìm kiếm và mua sắm các sản phẩm phù hợp với phong cách của bạn.</p>
+                            <a href="shopping-assistant.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+                
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-body-scan-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="virtual-fitting.html" class="title text-dark h5">Thử đồ Avatar</a>
+                            <p class="text-muted mt-3">Xem trước trang phục trên avatar ảo của chính bạn trước khi mua.</p>
+                            <a href="virtual-fitting.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-magic-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="designer-connect.html" class="title text-dark h5">Gợi ý làm đẹp</a>
+                            <p class="text-muted mt-3">Hoàn thiện vẻ ngoài với các gợi ý makeup và kiểu tóc phù hợp.</p>
+                            <a href="designer-connect.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-group-2-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="designer-connect.html" class="title text-dark h5">Kết nối nhà thiết kế</a>
+                            <p class="text-muted mt-3">Tương tác và khám phá các bộ sưu tập từ các nhà thiết kế tài năng.</p>
+                            <a href="designer-connect.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-xl-3 col-md-4 col-12 mt-5">
+                    <div class="card features feature-primary border-0">
+                        <div class="icon text-center rounded-md">
+                            <i class="ri-pen-nib-line h3 mb-0"></i>
+                        </div>
+                        <div class="card-body p-0 mt-3">
+                            <a href="departments.html" class="title text-dark h5">Lookbook cá nhân</a>
+                            <p class="text-muted mt-3">Tạo và lưu lại những bộ trang phục yêu thích của riêng bạn.</p>
+                            <a href="departments.html" class="link">Xem chi tiết <i class="ri-arrow-right-line align-middle"></i></a>
+                        </div>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </section><!--end section-->
+    <!-- End -->
+
+    <!-- Start -->
+    <section class="section bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="section-title text-center mb-4 pb-2">
+                        <span class="badge badge-pill badge-soft-primary mb-3">Lịch Phong Cách</span>
+                        <h4 class="title mb-4">Gợi Ý Trang Phục Cho Tuần Mới</h4>
+                        <p class="text-muted mx-auto para-desc mb-0">Hãy để AI lên kế hoạch trang phục cho cả tuần, giúp bạn luôn tự tin và phong cách mà không cần tốn thời gian suy nghĩ.</p>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 mt-4 pt-2">
+                    <div class="table-responsive shadow rounded">
+                        <table class="table table-center table-bordered bg-white mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center py-4" style="min-width: 120px;">Sự kiện</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Hai</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Ba</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Tư</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Năm</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Sáu</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Thứ Bảy</th>
+                                    <th class="text-center py-4" style="min-width: 200px;">Chủ Nhật</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Start -->
+                                <tr>
+                                    <th class="text-center py-5">Công sở</th>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/1.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="Outfit 1">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Thanh lịch</h6>
+                                                <small class="text-muted">Blazer & Quần Âu</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Năng động, chuyên nghiệp</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/2.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Tối giản</h6>
+                                                <small class="text-muted">Sơ mi & Chân váy</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Nhẹ nhàng, tinh tế</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/3.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Smart Casual</h6>
+                                                <small class="text-muted">Áo len & Quần Kaki</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Thoải mái, sáng tạo</small>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+
+                                <tr>
+                                    <th class="text-center py-5">Dạo phố</th>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/4.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="Outfit 4">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Streetwear</h6>
+                                                <small class="text-muted">Hoodie & Jeans</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Cá tính, nổi bật</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/5.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Nữ tính</h6>
+                                                <small class="text-muted">Váy hoa & Sneaker</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Dịu dàng, tươi mới</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/2.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Năng động</h6>
+                                                <small class="text-muted">Áo phông & Short</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Khỏe khoắn, tự tin</small>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center py-5">Tiệc tối</th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/6.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Lãng mạn</h6>
+                                                <small class="text-muted">Váy lụa</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Nhẹ nhàng, bay bổng</small>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/6.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Thư giãn</h6>
+                                                <small class="text-muted">Váy Maxi</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Thoáng mát, thoải mái</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center py-5">Hẹn hò</th>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/3.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Ngọt ngào</h6>
+                                                <small class="text-muted">Váy Chiffon</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Tinh khôi, cuốn hút</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/2.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Hiện đại</h6>
+                                                <small class="text-muted">Jumpsuit</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Phong cách, thời thượng</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/5.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Cổ điển</h6>
+                                                <small class="text-muted">Váy midi & áo kiểu</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Cổ điển, sang trọng</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/3.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Tự do</h6>
+                                                <small class="text-muted">Phong cách Bohemian</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Phóng khoáng, nghệ sĩ</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center py-5">Cuối tuần</th>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/2.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Thể thao</h6>
+                                                <small class="text-muted">Set đồ thể thao</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Khỏe khoắn, thoải mái</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/5.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Dã ngoại</h6>
+                                                <small class="text-muted">Yếm & áo phông</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Trẻ trung, đáng yêu</small>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <div class="d-flex mb-3">
+                                            <img src="../assets/images/outfit/2.webp" class="avatar avatar-md-sm rounded-circle border shadow" alt="">
+                                            <div class="ms-3">
+                                                <h6 class="text-dark mb-0 d-block">Thư giãn tại nhà</h6>
+                                                <small class="text-muted">Đồ ngủ lụa</small>
+                                            </div>
+                                        </div>
+                                        <small class="bg-soft-primary rounded py-1 px-2 d-block text-center">Mềm mại, dễ chịu</small>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <!-- End -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-fluid-->
+    </section><!--end section-->
+    <!-- End -->
+
+    <!-- Start -->
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="section-title text-center mb-4 pb-2">
+                        <h4 class="title mb-4">Stylists & Nhà Thiết Kế</h4>
+                        <p class="text-muted mx-auto para-desc mb-0">Kết nối với các chuyên gia hàng đầu và những thương hiệu nổi bật để nâng tầm phong cách của bạn.</p>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+
+            <div class="row align-items-center">
+                <div class="col-xl-3 col-lg-3 col-md-6 mt-4 pt-2">
+                    <div class="card team border-0 rounded shadow overflow-hidden">
+                        <div class="team-img position-relative">
+                            <img src="../assets/images/doctors/01.jpg" class="img-fluid" alt="">
+                            <ul class="list-unstyled team-social mb-0">
+                                <li><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="facebook" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="linkedin" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="instagram" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="twitter" class="icons"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="card-body content text-center">
+                            <a href="doctor-team-one.html" class="title text-dark h5 d-block mb-0">Stella Vũ</a>
+                            <small class="text-muted speciality">Chuyên gia phong cách Vintage</small>
+                        </div>
+                    </div>
+                </div><!--end col-->
+                
+                <div class="col-xl-3 col-lg-3 col-md-6 mt-4 pt-2">
+                    <div class="card team border-0 rounded shadow overflow-hidden">
+                        <div class="team-img position-relative">
+                            <img src="../assets/images/outfit/4.webp" class="img-fluid" alt="">
+                            <ul class="list-unstyled team-social mb-0">
+                                <li><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="facebook" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="linkedin" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="instagram" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="twitter" class="icons"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="card-body content text-center">
+                            <a href="doctor-team-one.html" class="title text-dark h5 d-block mb-0">Kevin Trần</a>
+                            <small class="text-muted speciality">Chuyên gia Streetwear</small>
+                        </div>
+                    </div>
+                </div><!--end col-->
+                
+                <div class="col-xl-3 col-lg-3 col-md-6 mt-4 pt-2">
+                    <div class="card team border-0 rounded shadow overflow-hidden">
+                        <div class="team-img position-relative">
+                            <img src="../assets/images/outfit/3.webp" class="img-fluid" alt="">
+                            <ul class="list-unstyled team-social mb-0">
+                                <li><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="facebook" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="linkedin" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="instagram" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="twitter" class="icons"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="card-body content text-center">
+                            <a href="doctor-team-one.html" class="title text-dark h5 d-block mb-0">Linh Chi</a>
+                            <small class="text-muted speciality">Nhà thiết kế thời trang</small>
+                        </div>
+                    </div>
+                </div><!--end col-->
+                
+                <div class="col-xl-3 col-lg-3 col-md-6 mt-4 pt-2">
+                    <div class="card team border-0 rounded shadow overflow-hidden">
+                        <div class="team-img position-relative">
+                            <img src="../assets/images/outfit/2.webp" class="img-fluid" alt="">
+                            <ul class="list-unstyled team-social mb-0">
+                                <li><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="facebook" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="linkedin" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="instagram" class="icons"></i></a></li>
+                                <li class="mt-2"><a href="#" class="btn btn-icon btn-pills btn-soft-primary"><i data-feather="twitter" class="icons"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="card-body content text-center">
+                            <a href="doctor-team-one.html" class="title text-dark h5 d-block mb-0">The Minimalist</a>
+                            <small class="text-muted speciality">Thương hiệu đối tác</small>
+                        </div>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-12 mt-4 pt-2 text-center">
+                    <a href="doctor-team-one.html" class="btn btn-primary">Xem thêm</a>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </section><!--end section-->
+    <!-- End -->
+
+    <!-- Start -->
+    <section class="section pt-0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 text-center">
+                    <div class="video-solution-cta position-relative" style="z-index: 1;">
+                        <div class="position-relative">
+                            <img src="../assets/images/bg/01.jpg" class="img-fluid rounded-md shadow-lg" alt="">
+                            <div class="play-icon">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#watchvideomodal" class="play-btn video-play-icon">
+                                    <i class="mdi mdi-play text-primary rounded-circle bg-white title-bg-dark shadow-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="content">
+                            <div class="row" id="counter">
+                                <div class="col-md-4 mt-4 pt-2">
+                                    <div class="counter-box text-center">
+                                        <h1 class="mt-3 text-white title-dark"><span class="counter-value" data-target="10000">100</span>+</h1>
+                                        <h5 class="counter-head text-white title-dark mb-1">Trang phục đã phối</h5>
+                                        <p class="text-white-50 mb-0">Bởi Trí Tuệ Nhân Tạo</p>
+                                    </div><!--end counter box-->
+                                </div><!--end col-->
+
+                                <div class="col-md-4 mt-4 pt-2">
+                                    <div class="counter-box text-center">
+                                        <h1 class="mt-3 text-white title-dark"><span class="counter-value" data-target="200">20</span>+</h1>
+                                        <h5 class="counter-head text-white title-dark mb-1">Thương Hiệu Đối Tác</h5>
+                                        <p class="text-white-50 mb-0">Chất lượng hàng đầu</p>
+                                    </div><!--end counter box-->
+                                </div><!--end col-->
+
+                                <div class="col-md-4 mt-4 pt-2">
+                                    <div class="counter-box text-center">
+                                        <h1 class="mt-3 text-white title-dark"><span class="counter-value" data-target="5000">500</span>+</h1>
+                                        <h5 class="counter-head text-white title-dark mb-1">Người dùng hài lòng</h5>
+                                        <p class="text-white-50 mb-0">Yêu thích phong cách</p>
+                                    </div><!--end counter box-->
+                                </div><!--end col-->
+                            </div><!--end row-->
+                        </div>
+                    </div>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </section><!--end section-->
+    <!-- End -->
+
+    <!-- Start Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-12 mb-0 mb-md-4 pb-0 pb-md-2">
+                    <a href="#" class="logo-footer">
+                        <img src="../assets/images/logo-light.png" height="24" alt="">
+                    </a>
+                    <p class="mt-4">Định hình phong cách của bạn với LookAI. Trợ lý thời trang AI cá nhân của bạn đã ở đây.</p>
+                    <ul class="list-unstyled social-icon foot-social-icon mb-0 mt-4">
+                        <li class="list-inline-item"><a href="#" class="rounded"><i data-feather="facebook" class="fea icon-sm fea-social"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="rounded"><i data-feather="instagram" class="fea icon-sm fea-social"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="rounded"><i data-feather="twitter" class="fea icon-sm fea-social"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="rounded"><i data-feather="linkedin" class="fea icon-sm fea-social"></i></a></li>
+                    </ul><!--end icon-->
+                </div><!--end col-->
+                
+                <div class="col-lg-2 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                    <h5 class="footer-head">Công ty</h5>
+                    <ul class="list-unstyled footer-list mt-4">
+                        <li><a href="aboutus.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Về chúng tôi</a></li>
+                        <li><a href="departments.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Dịch vụ</a></li>
+                        <li><a href="blogs.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Tin tức</a></li>
+                        <li><a href="contact.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Liên hệ</a></li>
+                    </ul>
+                </div><!--end col-->
+                
+                <div class="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                    <h5 class="footer-head">Tính năng nổi bật</h5>
+                    <ul class="list-unstyled footer-list mt-4">
+                        <li><a href="my-wardrobe.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Tủ đồ số</a></li>
+                        <li><a href="ai-stylist-session.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> AI phối đồ</a></li>
+                        <li><a href="virtual-try-on.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Thử đồ ảo</a></li>
+                        <li><a href="style-calendar.html" class="text-foot"><i class="mdi mdi-chevron-right me-1"></i> Lịch phong cách</a></li>
+                    </ul>
+                </div><!--end col-->
+
+                <div class="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                    <h5 class="footer-head">Bản tin</h5>
+                    <p class="mt-4">Đăng ký và nhận những mẹo thời trang và ưu đãi mới nhất.</p>
+                    <form>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="foot-subscribe mb-3">
+                                    <label class="form-label">Viết email của bạn <span class="text-danger">*</span></label>
+                                    <div class="form-icon position-relative">
+                                        <i data-feather="mail" class="fea icon-sm icons"></i>
+                                        <input type="email" name="email" id="emailsubscribe" class="form-control ps-5 rounded" placeholder="Email của bạn" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="d-grid">
+                                    <input type="submit" id="submitsubscribe" name="send" class="btn btn-soft-primary" value="Đăng ký">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </footer><!--end footer-->
+    <footer class="footer footer-bar">
+        <div class="container text-center">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="text-sm-start">
+                        <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> LookAI. Thiết kế bởi <a href="https://shreethemes.in/" target="_blank" class="text-reset">Shreethemes</a>.</p>
+                    </div>
+                </div><!--end col-->
+
+                <div class="col-sm-6 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                    <ul class="list-unstyled text-sm-end mb-0">
+                        <li class="list-inline-item"><a href="javascript:void(0)"><img src="../assets/images/payments/american-ex.png" class="avatar avatar-ex-sm" title="American Express" alt=""></a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"><img src="../assets/images/payments/discover.png" class="avatar avatar-ex-sm" title="Discover" alt=""></a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"><img src="../assets/images/payments/master-card.png" class="avatar avatar-ex-sm" title="Master Card" alt=""></a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"><img src="../assets/images/payments/paypal.png" class="avatar avatar-ex-sm" title="Paypal" alt=""></a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"><img src="../assets/images/payments/visa.png" class="avatar avatar-ex-sm" title="Visa" alt=""></a></li>
+                    </ul>
+                </div><!--end col-->
+            </div><!--end row-->
+        </div><!--end container-->
+    </footer><!--end footer-->
+    <!-- End Footer -->
+
+    <!-- Offcanvas Start -->
+    <div class="offcanvas offcanvas-end bg-white shadow" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header p-4 border-bottom">
+            <h5 id="offcanvasRightLabel" class="mb-0">
+                <img src="../assets/images/logo-dark.png" height="24" class="light-version" alt="">
+                <img src="../assets/images/logo-light.png" height="24" class="dark-version" alt="">
+            </h5>
+            <button type="button" class="btn-close d-flex align-items-center text-dark" data-bs-dismiss="offcanvas" aria-label="Close"><i class="uil uil-times fs-4"></i></button>
+        </div>
+        <div class="offcanvas-body p-4">
+           <!-- Settings content here -->
+           <p>Tùy chỉnh giao diện, thông báo và các cài đặt khác tại đây.</p>
+        </div>
+    </div>
+    <!-- Offcanvas End -->
+
+    <!-- Offcanvas Start -->
+    <div class="offcanvas offcanvas-top bg-light" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+        <div class="offcanvas-body d-flex align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="text-center">
+                            <h4>Tìm kiếm mọi thứ về phong cách...</h4>
+                            <div class="subcribe-form mt-4">
+                                <form>
+                                    <div class="mb-0">
+                                        <input type="text" id="help" name="name" class="border bg-white rounded-pill" required="" placeholder="Nhập từ khóa...">
+                                        <button type="submit" class="btn btn-pills btn-primary">Tìm kiếm</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div><!--end col-->
+                </div><!--end row-->
+            </div><!--end container-->
+        </div>
+    </div>
+    <!-- Offcanvas End -->
+    
+    <!-- Video Popup Start -->
+    <div class="modal fade" id="watchvideomodal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <video controls autoplay loop style="width:100%;">
+                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Video Popup End -->
+
+    <!-- Back to top -->
+    <a href="#" onclick="topFunction()" id="back-to-top" class="btn btn-icon btn-pills btn-primary back-to-top"><i data-feather="arrow-up" class="icons"></i></a>
+    <!-- Back to top -->
+
+    <!-- javascript -->
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- SLIDER -->
+    <script src="../assets/js/tiny-slider.js"></script>
+    <script src="../assets/js/tiny-slider-init.js"></script>
+    <!-- Counter -->
+    <script src="../assets/js/counter.init.js"></script>
+    <!-- Icons -->
+    <script src="../assets/js/feather.min.js"></script>
+    <!-- Main Js -->
+    <script src="../assets/js/app.js"></script>
+    
+    <!-- AI Stylist Sidebar Script -->
+    <script>
+        // Danh sách ảnh thời trang
+        const fashionImages = [
+            {
+                url: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop',
+                title: 'Phong Cách Hiện Đại',
+                description: 'Thời trang thanh lịch cho phụ nữ hiện đại'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=300&fit=crop',
+                title: 'Phong Cách Cổ Điển',
+                description: 'Vẻ đẹp vượt thời gian với phong cách cổ điển'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=300&fit=crop',
+                title: 'Phong Cách Thể Thao',
+                description: 'Năng động và tự tin với trang phục thể thao'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=300&fit=crop',
+                title: 'Phong Cách Công Sở',
+                description: 'Chuyên nghiệp và lịch thiệp trong môi trường làm việc'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=300&fit=crop',
+                title: 'Phong Cách Dạo Phố',
+                description: 'Tự do và thoải mái cho những ngày cuối tuần'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=400&h=300&fit=crop',
+                title: 'Phong Cách Tiệc Tối',
+                description: 'Lộng lẫy và quyến rũ cho những sự kiện đặc biệt'
+            }
+        ];
+        
+        let currentImageIndex = 0;
+        let sidebarInterval;
+        
+        // Hàm toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('aiStylistSidebar');
+            sidebar.classList.toggle('active');
+            
+            if (sidebar.classList.contains('active')) {
+                startImageRotation();
+            } else {
+                stopImageRotation();
+            }
+        }
+        
+        // Hàm bắt đầu quay ảnh
+        function startImageRotation() {
+            // Cập nhật ảnh ngay lập tức
+            updateImage();
+            
+            // Thiết lập interval để đổi ảnh mỗi 5 giây
+            sidebarInterval = setInterval(function() {
+                currentImageIndex = (currentImageIndex + 1) % fashionImages.length;
+                updateImage();
+            }, 5000);
+        }
+        
+        // Hàm dừng quay ảnh
+        function stopImageRotation() {
+            if (sidebarInterval) {
+                clearInterval(sidebarInterval);
+                sidebarInterval = null;
+            }
+        }
+        
+        // Hàm cập nhật ảnh
+        function updateImage() {
+            const image = fashionImages[currentImageIndex];
+            document.getElementById('sidebarImage').src = image.url;
+            document.getElementById('imageTitle').textContent = image.title;
+            document.getElementById('imageDescription').textContent = image.description;
+        }
+        
+        // Đóng sidebar khi click bên ngoài
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('aiStylistSidebar');
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            
+            if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
+                if (sidebar.classList.contains('active')) {
+                    toggleSidebar();
+                }
+            }
+        });
+        
+        // Khởi tạo khi trang đã tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hiển thị ảnh đầu tiên
+            updateImage();
+        });
+    </script>
+</body>
+
+</html>
+

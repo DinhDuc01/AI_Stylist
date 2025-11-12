@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>AI Phối Đồ - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trợ lý AI phối đồ thông minh - Nhận gợi ý trang phục cá nhân hóa" />
+    <meta name="keywords" content="AI Stylist, Phối đồ, Gợi ý trang phục, Chatbot thời trang" />
+    <meta name="author" content="LookAI" />
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        .chat-container {
+            height: 600px;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .chat-messages {
+            height: 450px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message.bot {
+            justify-content: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+        .message.user .message-content {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 4px;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .message.user .message-avatar {
+            background: #007bff;
+            color: white;
+        }
+        .message.bot .message-avatar {
+            background: #6c757d;
+            color: white;
+        }
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        }
+        .outfit-suggestion {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .outfit-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+        .quick-actions {
+            margin-bottom: 20px;
+        }
+        .quick-action-btn {
+            margin: 5px;
+            border-radius: 20px;
+        }
+        .typing-indicator {
+            display: none;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            background: #6c757d;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+
+            <div id="navigation">
+                <ul class="navigation-menu">
+                    <li><a href="index.html" class="sub-menu-item">Trang chủ</a></li>
+                    <li><a href="ai-stylist.html" class="sub-menu-item">AI Phối đồ</a></li>
+                    <li><a href="wardrobe.html" class="sub-menu-item">Tủ đồ số</a></li>
+                    <li><a href="virtual-fitting.html" class="sub-menu-item">Thử đồ ảo</a></li>
+                    <li><a href="departments.html" class="sub-menu-item">Lookbook</a></li>
+                    <li class="active"><a href="aboutus.html" class="sub-menu-item">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-robot-fill text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">AI Phối Đồ Thông Minh</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Trò chuyện với AI để nhận gợi ý trang phục phù hợp với mọi hoàn cảnh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow rounded">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="ri-flashlight-line text-primary me-2"></i>
+                                Gợi Ý Nhanh
+                            </h5>
+                            <div class="quick-actions text-center">
+                                <button class="btn btn-outline-primary quick-action-btn" onclick="sendQuickMessage('Gợi ý trang phục đi làm hôm nay')">
+                                    <i class="ri-briefcase-line me-1"></i>Đi làm
+                                </button>
+                                <button class="btn btn-outline-success quick-action-btn" onclick="sendQuickMessage('Trang phục dạo phố cuối tuần')">
+                                    <i class="ri-walk-line me-1"></i>Dạo phố
+                                </button>
+                                <button class="btn btn-outline-warning quick-action-btn" onclick="sendQuickMessage('Phối đồ cho buổi hẹn hò')">
+                                    <i class="ri-heart-line me-1"></i>Hẹn hò
+                                </button>
+                                <button class="btn btn-outline-info quick-action-btn" onclick="sendQuickMessage('Trang phục tập thể thao')">
+                                    <i class="ri-run-line me-1"></i>Thể thao
+                                </button>
+                                <button class="btn btn-outline-danger quick-action-btn" onclick="sendQuickMessage('Đồ dự tiệc tối')">
+                                    <i class="ri-goblet-line me-1"></i>Tiệc tối
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 mx-auto">
+                    <div class="chat-container shadow">
+                        <div class="chat-header">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="me-3">
+                                    <i class="ri-robot-fill display-6"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">LookAI Stylist</h5>
+                                    <small class="opacity-75">Trợ lý thời trang AI của bạn</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message bot">
+                                <div class="message-avatar">
+                                    <i class="ri-robot-line"></i>
+                                </div>
+                                <div class="message-content">
+                                    <p class="mb-2">Xin chào! Tôi là LookAI, trợ lý thời trang AI của bạn. 👋</p>
+                                    <p class="mb-0">Hãy cho tôi biết bạn cần gợi ý trang phục cho hoàn cảnh nào nhé!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Nhập tin nhắn của bạn..." onkeypress="handleKeyPress(event)">
+                                <button class="btn btn-primary" type="button" onclick="sendMessage()">
+                                    <i class="ri-send-plane-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <div class="card border-0 shadow rounded">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">
+                                <i class="ri-lightbulb-line text-primary me-2"></i>
+                                Gợi Ý Phối Đồ Mới Nhất
+                            </h5>
+                            <div class="row" id="outfitSuggestions">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#" onclick="topFunction()" id="back-to-top" class="back-to-top fs-5"><i data-feather="arrow-up" class="fea icon-sm icons align-middle"></i></a>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        
+        // Weather AI Integration
+        const WEATHER_API_KEY = 'd1ca006774aa4d9491d21940250611'; // WeatherAPI.com
+        const GEMINI_API_KEY = 'AIzaSyBYgj63cniNH6OyRmGifLNo7peqgU_L6k8'; // Google Gemini API
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+        
+        // Khởi tạo Weather AI
+        let weatherAI = null;
+        
+        // Page navigation mapping
+        const PAGE_LINKS = {
+            'trang chủ': 'index.html',
+            'home': 'index.html',
+            'tủ đồ': 'wardrobe.html',
+            'wardrobe': 'wardrobe.html',
+            'quản lý tủ đồ': 'wardrobe.html',
+            'thử đồ': 'virtual-fitting.html',
+            'virtual fitting': 'virtual-fitting.html',
+            'thử đồ ảo': 'virtual-fitting.html',
+            'ar': 'virtual-fitting.html',
+            'lookbook': 'departments.html',
+            'bộ sưu tập': 'departments.html',
+            'về chúng tôi': 'aboutus.html',
+            'about': 'aboutus.html',
+            'liên hệ': 'contact.html',
+            'contact': 'contact.html'
+        };
+
+        // Biến toàn cục để lưu 3 outfit mới nhất
+        let latestOutfitsCache = [];
+        // Biến toàn cục để lưu trạng thái yêu thích
+        let favoritedHashesCache = new Set();
+
+        function addMessage(content, isUser = false, outfit = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            let messageHTML = `
+                <div class="message-avatar">
+                    <i class="${isUser ? 'ri-user-line' : 'ri-robot-line'}"></i>
+                </div>
+                <div class="message-content">
+                    <p class="mb-0">${content}</p>
+            `;
+
+            if (outfit) {
+                messageHTML += `
+                    <div class="outfit-suggestion mt-3">
+                        <h6 class="mb-2">
+                            <i class="${outfit.icon} text-primary me-2"></i>
+                            ${outfit.title}
+                        </h6>
+                        <div class="mb-2">
+                            ${outfit.items.map(item => `<span class="outfit-item">${item}</span>`).join('')}
+                        </div>
+                        <small class="text-muted">
+                            <i class="ri-thermometer-line me-1"></i>Phù hợp: ${outfit.weather}
+                        </small>
+                    </div>
+                `;
+            }
+
+            messageHTML += '</div>';
+            messageDiv.innerHTML = messageHTML;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="ri-robot-line"></i>
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator" style="display: block;">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return typingDiv;
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            messageInput.value = '';
+            const typingIndicator = showTypingIndicator();
+
+            try {
+                // Kiểm tra xem có yêu cầu điều hướng không
+                const navigationResult = checkForNavigation(message);
+                if (navigationResult) {
+                    typingIndicator.remove();
+                    addMessage(navigationResult.message, false);
+                    // Chờ 2 giây rồi chuyển trang
+                    setTimeout(() => {
+                        window.location.href = navigationResult.url;
+                    }, 2000);
+                    return;
+                }
+
+                // Gửi tin nhắn đến Gemini AI
+                const aiResponse = await callGeminiAPI(message);
+                typingIndicator.remove();
+                
+                // Xử lý phản hồi và tạo outfit nếu cần
+                const processedResponse = processAIResponse(aiResponse, message);
+                addMessage(processedResponse.message, false, processedResponse.outfit);
+
+            } catch (error) {
+                console.error('Lỗi khi gửi tin nhắn:', error);
+                typingIndicator.remove();
+                addMessage('Ôi, có lỗi xảy ra rồi. Vui lòng kiểm tra kết nối internet và thử lại!', false);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            messageInput.value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // ---
+        // --- CẬP NHẬT PHẦN GỢI Ý MỚI NHẤT ---
+        // ---
+        
+        /**
+         * 1. Tải 3 gợi ý outfit mới nhất
+         */
+        async function loadLatestOutfits() {
+            const suggestionsContainer = document.getElementById('outfitSuggestions');
+            suggestionsContainer.innerHTML = '<p class="text-center text-muted col-12">Đang tải gợi ý mới nhất...</p>';
+
+            try {
+                // 1.1. Lấy 3 outfit mới nhất
+                const response = await fetch(`${API_BASE_URL}/api/chat/latest-outfits`);
+                const data = await response.json();
+
+                if (!data.success || !data.outfits || data.outfits.length === 0) {
+                    suggestionsContainer.innerHTML = '<p class="text-center text-muted col-12">Chưa có gợi ý nào được lưu.</p>';
+                    return;
+                }
+
+                latestOutfitsCache = data.outfits; // Lưu vào cache
+                
+                // 1.2. Tạo hash và kiểm tra trạng thái yêu thích
+                const hashes = latestOutfitsCache.map(outfit => outfit.title + outfit.items.join(','));
+                
+                const statusResponse = await fetch(`${API_BASE_URL}/api/lookbook/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hashes: hashes })
+                });
+                const statusData = await statusResponse.json();
+                
+                if (statusData.success) {
+                    favoritedHashesCache = new Set(statusData.favoritedHashes);
+                }
+
+                // 1.3. Hiển thị ra HTML
+                suggestionsContainer.innerHTML = ''; // Xóa loading
+                latestOutfitsCache.forEach((outfit, index) => {
+                    const outfitHash = hashes[index];
+                    const isFavorited = favoritedHashesCache.has(outfitHash);
+                    
+                    const icon = isFavorited ? 'ri-heart-fill' : 'ri-heart-line';
+                    const btnClass = isFavorited ? 'btn-primary' : 'btn-outline-primary';
+
+                    const outfitHtml = `
+                        <div class="col-md-4 mb-4">
+                            <div class="outfit-suggestion">
+                                <h6 class="mb-3">
+                                    <i class="${outfit.icon || 'ri-lightbulb-flash-line'} text-primary me-2"></i>
+                                    ${outfit.title}
+                                </h6>
+                                <div class="mb-3">
+                                    ${outfit.items.map(item => `<span class="outfit-item">${item}</span>`).join('')}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="ri-thermometer-line me-1"></i>Phù hợp: ${outfit.weather}
+                                </small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm ${btnClass}" id="fav-btn-${index}" onclick="toggleFavorite(this, ${index})">
+                                        <i class="${icon} me-1"></i>Yêu thích
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success">
+                                        <i class="ri-share-line me-1"></i>Chia sẻ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    suggestionsContainer.innerHTML += outfitHtml;
+                });
+
+            } catch (error) {
+                console.error('Lỗi khi tải gợi ý mới nhất:', error);
+                suggestionsContainer.innerHTML = '<p class="text-center text-danger col-12">Không thể tải gợi ý.</p>';
+            }
+        }
+
+        /**
+         * 2. THÊM MỚI: Hàm Toggle Yêu thích
+         */
+        async function toggleFavorite(buttonElement, index) {
+            const outfit = latestOutfitsCache[index];
+            if (!outfit) return;
+
+            // Vô hiệu hóa nút
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/lookbook/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ outfit: outfit })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Cập nhật giao diện nút
+                    if (data.favorited) {
+                        buttonElement.classList.remove('btn-outline-primary');
+                        buttonElement.classList.add('btn-primary');
+                        buttonElement.innerHTML = '<i class="ri-heart-fill me-1"></i>Yêu thích';
+                    } else {
+                        buttonElement.classList.remove('btn-primary');
+                        buttonElement.classList.add('btn-outline-primary');
+                        buttonElement.innerHTML = '<i class="ri-heart-line me-1"></i>Yêu thích';
+                    }
+                }
+            } catch (error) {
+                console.error('Lỗi khi toggle yêu thích:', error);
+                buttonElement.innerHTML = 'Lỗi';
+            } finally {
+                // Kích hoạt lại nút
+                buttonElement.disabled = false;
+            }
+        }
+
+        /**
+         * Kiểm tra yêu cầu điều hướng trong tin nhắn
+         */
+        function checkForNavigation(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            for (const [keyword, url] of Object.entries(PAGE_LINKS)) {
+                if (lowerMessage.includes(keyword)) {
+                    return {
+                        message: `Đang chuyển bạn đến trang ${keyword}... 🚀`,
+                        url: url
+                    };
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Gửi request đến Weather AI (sử dụng thời tiết thật)
+         */
+        async function callGeminiAPI(userMessage) {
+            // Kiểm tra nếu weatherAI chưa được khởi tạo
+            if (!weatherAI) {
+                console.error('WeatherAI chưa được khởi tạo');
+                return await callOriginalGeminiAPI(userMessage);
+            }
+
+            try {
+                // Lấy thời tiết thật trước
+                const weather = await weatherAI.getRealWeather('Hanoi');
+                
+                // Xác định hoạt động từ tin nhắn
+                const activity = detectActivity(userMessage);
+                
+                // Lấy gợi ý AI dựa trên thời tiết thật
+                const suggestion = await weatherAI.getAIOutfitSuggestion(weather, activity);
+                
+                // Tạo phản hồi tổng hợp
+                let response = `Dựa trên thời tiết hiện tại ở ${weather.location} (${weather.temperature}°C, ${weather.condition}), tôi gợi ý:\n\n`;
+                
+                if (typeof suggestion === 'object' && suggestion.top) {
+                    response += `👕 **Áo:** ${suggestion.top}\n`;
+                    response += `👖 **Quần/Váy:** ${suggestion.bottom}\n`;
+                    response += `👠 **Giày:** ${suggestion.shoes}\n`;
+                    if (suggestion.accessories && suggestion.accessories.length > 0) {
+                        response += `🎒 **Phụ kiện:** ${suggestion.accessories.join(', ')}\n`;
+                    }
+                    response += `\n💡 **Lý do:** ${suggestion.reason}`;
+                } else {
+                    response += suggestion;
+                }
+                
+                return response;
+                
+            } catch (error) {
+                console.error('Lỗi Weather AI:', error);
+                // Fallback về Gemini thông thường
+                return await callOriginalGeminiAPI(userMessage);
+            }
+        }
+        
+        /**
+         * Gemini API gốc (fallback)
+         */
+        async function callOriginalGeminiAPI(userMessage) {
+            try {
+                const prompt = createFashionPrompt(userMessage);
+                
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 500
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Gemini API Error:', errorData);
+                    throw new Error(`Gemini API lỗi: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Gemini API trả về dữ liệu không hợp lệ');
+                }
+                
+                return data.candidates[0].content.parts[0].text;
+                
+            } catch (error) {
+                console.error('Lỗi gọi Gemini API:', error);
+                // Trả về phản hồi mặc định
+                return 'Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau ít phút! 😔 \n\nTrong lúc chờ, bạn có thể thử các gợi ý nhanh bên trên nhé!';
+            }
+        }
+        
+        /**
+         * Phát hiện hoạt động từ tin nhắn
+         */
+        function detectActivity(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('đi làm') || lowerMessage.includes('công sở')) return 'work';
+            if (lowerMessage.includes('hẹn hò') || lowerMessage.includes('date')) return 'date';
+            if (lowerMessage.includes('thể thao') || lowerMessage.includes('gym')) return 'sport';
+            if (lowerMessage.includes('tiệc') || lowerMessage.includes('party')) return 'party';
+            if (lowerMessage.includes('dạo phố') || lowerMessage.includes('cuối tuần')) return 'casual';
+            
+            return 'casual';
+        }
+
+        /**
+         * Tạo prompt chuyên về thời trang cho Gemini (fallback)
+         */
+        function createFashionPrompt(userMessage) {
+            const currentWeather = weatherAI ? weatherAI.getCurrentWeatherInfo() : 'Không có thông tin thời tiết';
+            
+            return `Bạn là chuyên gia thời trang AI tên LookAI. Chỉ trả lời về chủ đề thời trang, quần áo, phối đồ, và thời tiết.
+
+Thông tin thời tiết hiện tại: ${currentWeather}
+
+Câu hỏi của người dùng: ${userMessage}
+
+Hướng dẫn:
+- Chỉ trả lời về thời trang, quần áo, phối đồ
+- Đưa ra gợi ý cụ thể về trang phục
+- Xem xét thời tiết khi đưa gợi ý
+- Nếu hỏi về chủ đề khác, lịch sự trả lời: "Tôi chỉ có thể giúp bạn về thời trang và quần áo thôi nhé!"
+- Trả lời bằng tiếng Việt, thân thiện và nhiệt tình
+- Nếu có thể, đưa ra 3-5 món đồ cụ thể
+
+Trả lời:`;
+        }
+
+        // ===== WEATHER AI CLASS =====
+        class WeatherOutfitAI {
+            constructor() {
+                this.weatherApiKey = WEATHER_API_KEY;
+                this.geminiApiKey = GEMINI_API_KEY;
+                this.personalWardrobe = this.loadWardrobe();
+                this.weatherCache = new Map();
+                this.cacheTimeout = 10 * 60 * 1000; // 10 phút
+                this.lastWeather = null;
+            }
+
+            async getRealWeather(city = 'Hanoi') {
+                const cacheKey = `weather_${city}`;
+                const cached = this.weatherCache.get(cacheKey);
+                
+                if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+                    return cached.data;
+                }
+
+                try {
+                    const response = await fetch(
+                        `https://api.weatherapi.com/v1/current.json?key=${this.weatherApiKey}&q=${city}&lang=vi`
+                    );
+                    
+                    if (!response.ok) throw new Error('Weather API error');
+                    
+                    const data = await response.json();
+                    const weatherData = {
+                        temperature: data.current.temp_c,
+                        condition: data.current.condition.text,
+                        humidity: data.current.humidity,
+                        windSpeed: data.current.wind_kph,
+                        feelsLike: data.current.feelslike_c,
+                        uvIndex: data.current.uv,
+                        visibility: data.current.vis_km,
+                        icon: data.current.condition.icon,
+                        isDay: data.current.is_day,
+                        location: `${data.location.name}, ${data.location.country}`
+                    };
+                    
+                    this.weatherCache.set(cacheKey, {
+                        data: weatherData,
+                        timestamp: Date.now()
+                    });
+                    
+                    this.lastWeather = weatherData;
+                    return weatherData;
+                    
+                } catch (error) {
+                    console.error('Lỗi lấy thời tiết:', error);
+                    return this.getFallbackWeather();
+                }
+            }
+
+            async getAIOutfitSuggestion(weather, activity = 'work', userPreferences = {}) {
+                try {
+                    const prompt = this.buildOutfitPrompt(weather, activity, userPreferences);
+                    
+                    const response = await fetch(`${GEMINI_API_URL}?key=${this.geminiApiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: `Bạn là chuyên gia thời trang AI. ${prompt}` }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 500
+                            }
+                        })
+                    });
+
+                    if (!response.ok) throw new Error('Gemini API error');
+
+                    const aiResponse = await response.json();
+                    const suggestion = aiResponse.candidates[0].content.parts[0].text;
+                    
+                    return this.parseAISuggestion(suggestion, weather);
+                    
+                } catch (error) {
+                    console.error('Lỗi Gemini AI:', error);
+                    return this.getRuleBasedSuggestion(weather, activity);
+                }
+            }
+
+            buildOutfitPrompt(weather, activity, preferences) {
+                const wardrobeItems = this.getAvailableClothes();
+                
+                return `
+Thời tiết hiện tại:
+- Nhiệt độ: ${weather.temperature}°C (cảm giác như ${weather.feelsLike}°C)
+- Thời tiết: ${weather.condition}
+- Độ ẩm: ${weather.humidity}%
+- Gió: ${weather.windSpeed} km/h
+
+Hoạt động: ${activity}
+
+Tủ đồ có sẵn:
+${wardrobeItems}
+
+Hãy gợi ý outfit cụ thể từ tủ đồ có sẵn, bao gồm:
+1. Áo (loại, màu, chất liệu)
+2. Quần/Váy (loại, màu)
+3. Giày dép
+4. Phụ kiện (nếu cần)
+5. Lý do tại sao phù hợp
+
+Trả lời bằng tiếng Việt, thân thiện và cụ thể.`;
+            }
+
+            getRuleBasedSuggestion(weather, activity) {
+                const temp = weather.temperature;
+                const isRaining = weather.condition.toLowerCase().includes('mưa');
+                const isWindy = weather.windSpeed > 15;
+                
+                let suggestion = {
+                    top: '',
+                    bottom: '',
+                    shoes: '',
+                    accessories: [],
+                    reason: '',
+                    comfort_score: 8
+                };
+
+                if (temp < 15) {
+                    suggestion.top = 'Áo khoác dày, áo len cổ lọ';
+                    suggestion.bottom = 'Quần jeans dày hoặc quần tây';
+                    suggestion.shoes = 'Giày bốt cao cổ';
+                    suggestion.accessories = ['Khăn quàng cổ', 'Mũ len'];
+                    suggestion.reason = 'Thời tiết lạnh, cần giữ ấm toàn thân';
+                } else if (temp < 25) {
+                    suggestion.top = 'Áo sơ mi hoặc áo thun dài tay';
+                    suggestion.bottom = 'Quần âu hoặc chân váy';
+                    suggestion.shoes = 'Giày da hoặc sneaker';
+                    suggestion.accessories = [];
+                    suggestion.reason = 'Thời tiết dễ chịu, thoải mái với trang phục nhẹ';
+                } else {
+                    suggestion.top = 'Áo thun cotton hoặc áo tank top';
+                    suggestion.bottom = 'Quần short hoặc váy ngắn';
+                    suggestion.shoes = 'Sandal hoặc giày thể thao thoáng khí';
+                    suggestion.accessories = ['Mũ chống nắng', 'Kính râm'];
+                    suggestion.reason = 'Thời tiết nóng, cần trang phục thoáng mát';
+                }
+
+                if (isRaining) {
+                    suggestion.accessories.push('Áo mưa', 'Ô');
+                    suggestion.shoes = 'Giày chống nước hoặc ũng';
+                    suggestion.reason += '. Có mưa nên cần đồ chống thấm.';
+                }
+
+                return suggestion;
+            }
+
+            loadWardrobe() {
+                const saved = localStorage.getItem('personalWardrobe');
+                return saved ? JSON.parse(saved) : this.getDefaultWardrobe();
+            }
+
+            getAvailableClothes() {
+                return this.personalWardrobe.map(item => 
+                    `- ${item.type}: ${item.name} (${item.color}, ${item.material || 'không rõ chất liệu'})`
+                ).join('\n');
+            }
+
+            getDefaultWardrobe() {
+                return [
+                    { type: 'Áo', name: 'Áo sơ mi trắng', color: 'Trắng', material: 'Cotton' },
+                    { type: 'Áo', name: 'Áo thun đen', color: 'Đen', material: 'Cotton' },
+                    { type: 'Áo', name: 'Áo hoodie xám', color: 'Xám', material: 'Nỉ' },
+                    { type: 'Áo', name: 'Áo len cổ lọ', color: 'Beige', material: 'Len' },
+                    { type: 'Quần', name: 'Quần jeans xanh', color: 'Xanh denim', material: 'Denim' },
+                    { type: 'Quần', name: 'Quần âu đen', color: 'Đen', material: 'Polyester' },
+                    { type: 'Giày', name: 'Sneaker trắng', color: 'Trắng', material: 'Da tổng hợp' },
+                    { type: 'Giày', name: 'Giày da nâu', color: 'Nâu', material: 'Da thật' },
+                    { type: 'Phụ kiện', name: 'Khăn quàng cổ', color: 'Đa màu', material: 'Len' }
+                ];
+            }
+
+            getFallbackWeather() {
+                return {
+                    temperature: 25,
+                    condition: 'Nhiều mây',
+                    humidity: 75,
+                    windSpeed: 10,
+                    feelsLike: 23,
+                    uvIndex: 3,
+                    visibility: 8,
+                    icon: '//cdn.weatherapi.com/weather/64x64/day/119.png',
+                    isDay: 1,
+                    location: 'Hà Nội, Vietnam'
+                };
+            }
+
+            parseAISuggestion(aiText, weather) {
+                try {
+                    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        return JSON.parse(jsonMatch[0]);
+                    }
+                } catch (error) {
+                    console.error('Không thể parse AI response:', error);
+                }
+                
+                return this.getRuleBasedSuggestion(weather, 'casual');
+            }
+
+            getCurrentWeatherInfo() {
+                if (this.lastWeather) {
+                    return `${this.lastWeather.location}: ${this.lastWeather.temperature}°C, ${this.lastWeather.condition}`;
+                }
+                
+                const now = new Date();
+                const month = now.getMonth() + 1;
+                const hour = now.getHours();
+                
+                let season = 'xuân';
+                if (month >= 6 && month <= 8) season = 'hè';
+                else if (month >= 9 && month <= 11) season = 'thu';
+                else if (month >= 12 || month <= 2) season = 'đông';
+                
+                let timeOfDay = 'sáng';
+                if (hour >= 12 && hour < 18) timeOfDay = 'chiều';
+                else if (hour >= 18) timeOfDay = 'tối';
+                
+                return `Mùa ${season}, ${timeOfDay}, nhiệt độ khoảng 25-30°C`;
+            }
+        }
+
+        /**
+         * Xử lý phản hồi từ AI và tạo outfit
+         */
+        function processAIResponse(aiResponse, userMessage) {
+            // Tìm các món đồ trong phản hồi
+            const clothingItems = extractClothingItems(aiResponse);
+            
+            let outfit = null;
+            if (clothingItems.length >= 3) {
+                outfit = {
+                    title: generateOutfitTitle(userMessage),
+                    items: clothingItems,
+                    weather: getCurrentWeatherInfo(),
+                    icon: getOutfitIcon(userMessage)
+                };
+            }
+            
+            return {
+                message: aiResponse,
+                outfit: outfit
+            };
+        }
+
+        /**
+         * Trích xuất các món đồ từ phản hồi AI
+         */
+        function extractClothingItems(text) {
+            const clothingKeywords = [
+                'áo sơ mi', 'áo thun', 'áo khoác', 'áo len', 'áo blazer',
+                'quần jeans', 'quần âu', 'quần short', 'chân váy', 'váy',
+                'giày sneaker', 'giày cao gót', 'giày lười', 'giày thể thao',
+                'túi xách', 'phụ kiện', 'đông hồ', 'kính mát'
+            ];
+            
+            const foundItems = [];
+            const lowerText = text.toLowerCase();
+            
+            clothingKeywords.forEach(item => {
+                if (lowerText.includes(item) && !foundItems.includes(item)) {
+                    foundItems.push(item);
+                }
+            });
+            
+            return foundItems.slice(0, 5); // Tối đa 5 món
+        }
+
+        /**
+         * Tạo tiêu đề outfit
+         */
+        function generateOutfitTitle(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('đi làm') || lowerMessage.includes('công sở')) return 'Trang phục công sở';
+            if (lowerMessage.includes('hẹn hò') || lowerMessage.includes('date')) return 'Trang phục hẹn hò';
+            if (lowerMessage.includes('dạo phố') || lowerMessage.includes('cuối tuần')) return 'Trang phục dạo phố';
+            if (lowerMessage.includes('tiệc') || lowerMessage.includes('party')) return 'Trang phục dự tiệc';
+            if (lowerMessage.includes('thể thao') || lowerMessage.includes('gym')) return 'Trang phục thể thao';
+            
+            return 'Gợi ý trang phục';
+        }
+
+        /**
+         * Lấy icon cho outfit
+         */
+        function getOutfitIcon(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('đi làm')) return 'ri-briefcase-line';
+            if (lowerMessage.includes('hẹn hò')) return 'ri-heart-line';
+            if (lowerMessage.includes('dạo phố')) return 'ri-walk-line';
+            if (lowerMessage.includes('tiệc')) return 'ri-goblet-line';
+            if (lowerMessage.includes('thể thao')) return 'ri-run-line';
+            
+            return 'ri-lightbulb-flash-line';
+        }
+
+        /**
+         * Debug function - kiểm tra API keys và kết nối
+         */
+        async function debugAPIConnection() {
+            console.log('=== DEBUG API CONNECTION ===');
+            console.log('Weather API Key:', WEATHER_API_KEY ? 'Có' : 'Không có');
+            console.log('Gemini API Key:', GEMINI_API_KEY ? 'Có' : 'Không có');
+            
+            // Test Weather API
+            try {
+                const weatherResponse = await fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=Hanoi&lang=vi`);
+                console.log('Weather API Status:', weatherResponse.status);
+                if (weatherResponse.ok) {
+                    const weatherData = await weatherResponse.json();
+                    console.log('Weather Data:', weatherData.current.temp_c + '°C', weatherData.current.condition.text);
+                } else {
+                    console.error('Weather API Error:', await weatherResponse.text());
+                }
+            } catch (error) {
+                console.error('Weather API Connection Error:', error);
+            }
+            
+            // Test Gemini API
+            try {
+                const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: 'Hello, test connection' }] }]
+                    })
+                });
+                console.log('Gemini API Status:', geminiResponse.status);
+                if (!geminiResponse.ok) {
+                    const errorData = await geminiResponse.json();
+                    console.error('Gemini API Error:', errorData);
+                }
+            } catch (error) {
+                console.error('Gemini API Connection Error:', error);
+            }
+            console.log('=== END DEBUG ===');
+        }
+
+        // Chạy khi trang tải xong
+        document.addEventListener('DOMContentLoaded', async () => {
+            feather.replace();
+            
+            // Debug API connection (chỉ trong development)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                await debugAPIConnection();
+            }
+            
+            // Khởi tạo Weather AI
+            try {
+                weatherAI = new WeatherOutfitAI();
+                console.log('WeatherAI đã được khởi tạo thành công');
+            } catch (error) {
+                console.error('Lỗi khởi tạo WeatherAI:', error);
+            }
+            
+            // Hiển thị thông báo chào mừng
+            addMessage('Chào bạn! Tôi là LookAI, trợ lý thời trang AI của bạn. 👗\n\nTôi có thể giúp bạn:\n• Gợi ý trang phục theo thời tiết\n• Phối đồ cho các hoàn cảnh khác nhau\n• Điều hướng đến các trang khác', false);
+            
+            // Lấy thời tiết sau 2 giây
+            setTimeout(async () => {
+                if (weatherAI) {
+                    try {
+                        const weather = await weatherAI.getRealWeather('Hanoi');
+                        addMessage(`🌤️ **Cập nhật thời tiết:** Hôm nay ở ${weather.location} là ${weather.temperature}°C, ${weather.condition}. Tôi sẵn sàng giúp bạn chọn trang phục phù hợp!`, false);
+                    } catch (error) {
+                        console.log('Không lấy được thời tiết:', error.message);
+                        addMessage('🌤️ Không thể lấy thông tin thời tiết hiện tại, nhưng tôi vẫn có thể giúp bạn gợi ý trang phục!', false);
+                    }
+                }
+            }, 2000);
+        });
+        // --- KẾT THÚC CẬP NHẬT ---
+    </script>
+</body>
+</html>

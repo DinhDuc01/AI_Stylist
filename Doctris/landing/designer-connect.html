@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Kết Nối Nhà Thiết Kế - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kết nối với stylist chuyên nghiệp và nhận gợi ý làm đẹp" />
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        .stylist-card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .stylist-card:hover {
+            transform: translateY(-5px);
+        }
+        .chat-container {
+            height: 500px;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+        }
+        .chat-messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+        }
+        .message.user .message-content {
+            background: #007bff;
+            color: white;
+        }
+        .message.stylist .message-content {
+            background: white;
+            border: 1px solid #e9ecef;
+        }
+        .beauty-tip {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+            <ul class="dropdowns list-inline mb-0">
+                <li class="list-inline-item mb-0 ms-1">
+                    <a href="index.html" class="btn btn-pills btn-soft-primary">
+                        <i class="uil uil-home"></i> Trang chủ
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-group-2-line text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Kết Nối Nhà Thiết Kế</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Tương tác với stylist chuyên nghiệp và nhận gợi ý làm đẹp cá nhân</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <!-- Stylists List -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h5 class="mb-4">
+                        <i class="ri-star-line text-primary me-2"></i>
+                        Stylist Nổi Bật
+                    </h5>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card stylist-card">
+                        <img src="../assets/images/doctors/01.jpg" class="card-img-top" alt="Stylist">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Minh Châu</h6>
+                            <p class="text-muted small">Chuyên gia tóc & makeup</p>
+                            <div class="mb-2">
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <span class="ms-1">5.0</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="startChat('Minh Châu')">
+                                <i class="ri-chat-1-line me-1"></i>Nhắn tin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card stylist-card">
+                        <img src="../assets/images/doctors/02.jpg" class="card-img-top" alt="Stylist">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Thanh Hằng</h6>
+                            <p class="text-muted small">Stylist thời trang</p>
+                            <div class="mb-2">
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-line text-muted"></i>
+                                <span class="ms-1">4.8</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="startChat('Thanh Hằng')">
+                                <i class="ri-chat-1-line me-1"></i>Nhắn tin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card stylist-card">
+                        <img src="../assets/images/doctors/03.jpg" class="card-img-top" alt="Stylist">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Quỳnh Anh</h6>
+                            <p class="text-muted small">Chuyên gia skincare</p>
+                            <div class="mb-2">
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <span class="ms-1">4.9</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="startChat('Quỳnh Anh')">
+                                <i class="ri-chat-1-line me-1"></i>Nhắn tin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card stylist-card">
+                        <img src="../assets/images/doctors/04.jpg" class="card-img-top" alt="Stylist">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Hương Giang</h6>
+                            <p class="text-muted small">Nail art specialist</p>
+                            <div class="mb-2">
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-fill text-warning"></i>
+                                <i class="ri-star-line text-muted"></i>
+                                <span class="ms-1">4.7</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="startChat('Hương Giang')">
+                                <i class="ri-chat-1-line me-1"></i>Nhắn tin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Chat Interface -->
+                <div class="col-lg-8">
+                    <div class="chat-container shadow">
+                        <div class="chat-header">
+                            <div class="d-flex align-items-center">
+                                <img src="../assets/images/doctors/01.jpg" class="rounded-circle me-3" width="40" height="40" alt="Stylist">
+                                <div>
+                                    <h6 class="mb-0" id="currentStylist">Minh Châu</h6>
+                                    <small class="opacity-75">Chuyên gia tóc & makeup</small>
+                                </div>
+                                <div class="ms-auto">
+                                    <span class="badge bg-success">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message stylist">
+                                <div class="message-content">
+                                    <p class="mb-1">Xin chào! Tôi là Minh Châu, chuyên gia tóc và makeup. 👋</p>
+                                    <p class="mb-0">Bạn cần tư vấn gì về làm đẹp hôm nay?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input p-3 border-top">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Nhập tin nhắn..." onkeypress="handleKeyPress(event)">
+                                <button class="btn btn-primary" onclick="sendMessage()">
+                                    <i class="ri-send-plane-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beauty Tips -->
+                <div class="col-lg-4">
+                    <h6 class="mb-3">
+                        <i class="ri-magic-line text-primary me-2"></i>
+                        Mẹo Làm Đẹp Hôm Nay
+                    </h6>
+
+                    <div class="beauty-tip">
+                        <h6 class="text-primary">💄 Makeup Tự Nhiên</h6>
+                        <p class="small mb-2">Sử dụng kem nền mỏng, tập trung vào việc che khuyết điểm thay vì phủ kín toàn bộ khuôn mặt.</p>
+                        <small class="text-muted">Bởi Minh Châu</small>
+                    </div>
+
+                    <div class="beauty-tip">
+                        <h6 class="text-success">💇‍♀️ Chăm Sóc Tóc</h6>
+                        <p class="small mb-2">Sử dụng dầu dưỡng tóc 2-3 lần/tuần để tóc luôn mềm mượt và bóng khỏe.</p>
+                        <small class="text-muted">Bởi Thanh Hằng</small>
+                    </div>
+
+                    <div class="beauty-tip">
+                        <h6 class="text-info">🧴 Skincare Routine</h6>
+                        <p class="small mb-2">Làm sạch - Toner - Serum - Kem dưỡng - Kem chống nắng. Đây là quy trình cơ bản cho da khỏe.</p>
+                        <small class="text-muted">Bởi Quỳnh Anh</small>
+                    </div>
+
+                    <div class="beauty-tip">
+                        <h6 class="text-warning">💅 Nail Care</h6>
+                        <p class="small mb-2">Thoa dầu dưỡng móng tay hàng ngày để móng chắc khỏe và không bị gãy.</p>
+                        <small class="text-muted">Bởi Hương Giang</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const currentStylistName = document.getElementById('currentStylist');
+
+        const stylistResponses = {
+            'makeup': 'Để có lớp makeup tự nhiên, bạn nên bắt đầu với kem nền mỏng, sau đó dùng concealer che khuyết điểm. Phấn má hồng nhẹ và son môi tông nude sẽ hoàn thiện look! 💄',
+            'tóc': 'Với kiểu tóc của bạn, tôi khuyên nên cắt tỉa đều đặn 6-8 tuần một lần. Sử dụng dầu dưỡng tóc và tránh sấy khô ở nhiệt độ cao nhé! 💇‍♀️',
+            'skincare': 'Routine skincare cơ bản: Sữa rửa mặt → Toner → Serum vitamin C (sáng) hoặc retinol (tối) → Kem dưỡng ẩm → Kem chống nắng (sáng). Kiên trì sẽ thấy hiệu quả! 🧴',
+            'nail': 'Để có đôi tay đẹp, hãy thoa dầu dưỡng móng hàng ngày, cắt móng đều đặn và luôn đeo găng tay khi làm việc nhà. Màu nude hoặc hồng nhạt sẽ phù hợp với mọi outfit! 💅'
+        };
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'stylist'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p class="mb-0">${content}</p>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getStylistResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('makeup') || lowerMessage.includes('trang điểm')) {
+                return stylistResponses.makeup;
+            } else if (lowerMessage.includes('tóc') || lowerMessage.includes('hair')) {
+                return stylistResponses.tóc;
+            } else if (lowerMessage.includes('skincare') || lowerMessage.includes('da')) {
+                return stylistResponses.skincare;
+            } else if (lowerMessage.includes('nail') || lowerMessage.includes('móng')) {
+                return stylistResponses.nail;
+            }
+            
+            return 'Cảm ơn bạn đã chia sẻ! Tôi sẽ tư vấn cụ thể hơn. Bạn có thể gửi ảnh hoặc mô tả chi tiết hơn về vấn đề bạn quan tâm không? 😊';
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            messageInput.value = '';
+
+            setTimeout(() => {
+                const response = getStylistResponse(message);
+                addMessage(response, false);
+            }, 1000);
+        }
+
+        function startChat(stylistName) {
+            currentStylistName.textContent = stylistName;
+            
+            // Clear chat and add welcome message
+            chatMessages.innerHTML = `
+                <div class="message stylist">
+                    <div class="message-content">
+                        <p class="mb-1">Xin chào! Tôi là ${stylistName}. 👋</p>
+                        <p class="mb-0">Bạn cần tư vấn gì về làm đẹp hôm nay?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        feather.replace();
+    </script>
+</body>
+</html>

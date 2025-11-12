@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Lookbook Cá Nhân - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nơi lưu trữ các bộ trang phục AI yêu thích của bạn" />
+    <meta name="author" content="LookAI" />
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        /* Sao chép style từ trang AI Stylist */
+        .outfit-suggestion {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            transition: transform 0.3s ease;
+            height: 100%; /* Đảm bảo các card cao bằng nhau */
+        }
+        .outfit-suggestion:hover {
+            transform: translateY(-5px);
+        }
+        .outfit-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+
+            <div id="navigation">
+                <ul class="navigation-menu">
+                    <li><a href="index.html" class="sub-menu-item">Trang chủ</a></li>
+                    <li><a href="ai-stylist.html" class="sub-menu-item">AI Phối đồ</a></li>
+                    <li><a href="wardrobe.html" class="sub-menu-item">Tủ đồ số</a></li>
+                    <li><a href="virtual-fitting.html" class="sub-menu-item">Thử đồ ảo</a></li>
+                    <li><a href="departments.html" class="sub-menu-item">Lookbook</a></li>
+                    <li class="active"><a href="aboutus.html" class="sub-menu-item">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines"><span></span><span></span><span></span></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-book-3-line text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Lookbook Cá Nhân</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Bộ sưu tập các trang phục yêu thích của bạn do AI gợi ý</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row" id="lookbookGrid">
+                <p class="text-center text-muted col-12" id="loadingMessage">Đang tải bộ sưu tập...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#" onclick="topFunction()" id="back-to-top" class="back-to-top fs-5"><i data-feather="arrow-up" class="fea icon-sm icons align-middle"></i></a>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        const API_BASE_URL = 'https://mlpn8h4s-3000.asse.devtunnels.ms'; // Hoặc link tunnel của bạn
+
+        /**
+         * 1. Tải tất cả các mục yêu thích
+         */
+        async function loadLookbook() {
+            const gridContainer = document.getElementById('lookbookGrid');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/lookbook`);
+                const data = await response.json();
+
+                if (data.success && data.favorites && data.favorites.length > 0) {
+                    loadingMessage.style.display = 'none'; // Ẩn loading
+                    gridContainer.innerHTML = ''; // Xóa sạch
+
+                    data.favorites.forEach(favItem => {
+                        const outfit = favItem.outfit;
+                        
+                        // Chuyển outfit object thành chuỗi JSON để nhúng vào nút
+                        const outfitJsonString = JSON.stringify(outfit).replace(/'/g, "\\'");
+
+                        const outfitHtml = `
+                            <div class="col-md-4 mb-4" id="fav-item-${favItem._id}">
+                                <div class="outfit-suggestion d-flex flex-column justify-content-between">
+                                    <div>
+                                        <h6 class="mb-3">
+                                            <i class="${outfit.icon || 'ri-lightbulb-flash-line'} text-primary me-2"></i>
+                                            ${outfit.title}
+                                        </h6>
+                                        <div class="mb-3">
+                                            ${outfit.items.map(item => `<span class="outfit-item">${item}</span>`).join('')}
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="ri-thermometer-line me-1"></i>Phù hợp: ${outfit.weather}
+                                        </small>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-sm btn-primary" data-outfit='${outfitJsonString}' onclick="toggleFavorite(this, '${favItem._id}')">
+                                            <i class="ri-heart-fill me-1"></i>Đã yêu thích
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success">
+                                            <i class="ri-share-line me-1"></i>Chia sẻ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        gridContainer.innerHTML += outfitHtml;
+                    });
+                } else {
+                    loadingMessage.innerText = 'Lookbook của bạn chưa có gì. Hãy qua trang AI Phối Đồ và bấm "Yêu thích" nhé!';
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi tải Lookbook:', error);
+                loadingMessage.innerText = 'Không thể tải Lookbook. Vui lòng thử lại sau.';
+                loadingMessage.classList.remove('text-muted');
+                loadingMessage.classList.add('text-danger');
+            }
+        }
+
+        /**
+         * 2. Hàm Toggle Yêu thích (cho trang Lookbook)
+         */
+        async function toggleFavorite(buttonElement, favoriteId) {
+            // Lấy outfit object từ data-attribute
+            const outfit = JSON.parse(buttonElement.dataset.outfit);
+            if (!outfit) return;
+
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/lookbook/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ outfit: outfit })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Nếu bỏ yêu thích thành công (data.favorited == false)
+                    // -> Xóa card này khỏi giao diện
+                    if (data.favorited === false) {
+                        const cardElement = document.getElementById(`fav-item-${favoriteId}`);
+                        if (cardElement) {
+                            cardElement.remove();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Lỗi khi toggle yêu thích:', error);
+                buttonElement.innerHTML = 'Lỗi';
+                buttonElement.disabled = false;
+            }
+            // Không cần kích hoạt lại nút vì card sẽ bị xóa
+        }
+        
+        // Chạy khi trang tải xong
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            loadLookbook();
+        });
+    </script>
+</body>
+</html>

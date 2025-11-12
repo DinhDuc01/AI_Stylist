@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LookAI Chat – AI Chatbot cho Doanh nghiệp</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --card:#131313;
+      --muted:#b9c6d2;
+      --text:#e8f3f8;
+      --accent:#00ffff;
+      --accent-soft: rgba(0,255,255,.12);
+      --border: rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.4);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Poppins',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    a{color:var(--accent);text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+
+    /* Nav */
+    .nav{
+      position:sticky; top:0; z-index:20;
+      background:rgba(10,10,10,.8);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      height:64px;
+    }
+    .logo-wrap{display:flex; align-items:center; gap:12px}
+    .logo-wrap img{
+      height:80px; /* logo to rõ */
+      filter:none !important; /* bỏ hào quang xanh */
+    }
+    .brand{font-weight:600; letter-spacing:.3px}
+    .nav-actions{display:flex; gap:10px}
+    .btn{
+      border:1px solid var(--border);
+      background:#0f0f0f;
+      color:var(--text);
+      padding:10px 16px;
+      border-radius:999px;
+      font-weight:600;
+      transition:.2s;
+    }
+    .btn:hover{border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+    .btn-primary{
+      background:linear-gradient(90deg,#00bcd4, var(--accent));
+      color:#000;
+      border:none;
+    }
+    .btn-primary:hover{box-shadow:0 0 0 6px var(--accent-soft); transform:translateY(-1px)}
+
+    /* Hero */
+    .hero{
+      padding:64px 0 24px;
+      background:
+        radial-gradient(600px 200px at 70% 10%, rgba(0,255,255,.08), transparent 60%),
+        radial-gradient(400px 160px at 10% 0%, rgba(0,255,255,.06), transparent 60%);
+    }
+    .hero-grid{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:32px; align-items:center;
+    }
+    .title{font-size:42px; line-height:1.15; margin:0 0 12px}
+    .lead{color:var(--muted); margin:0 0 22px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      border:1px solid var(--accent); color:var(--accent);
+      background:rgba(0,255,255,.05); font-weight:600; font-size:14px;
+      margin-bottom:10px;
+    }
+    .hero-cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px}
+
+    /* Chat card */
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .chat{
+      display:flex; flex-direction:column; height:520px; overflow:hidden;
+    }
+    .chat-header{
+      padding:14px 16px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:10px; justify-content:space-between;
+    }
+    .chat-header .status{display:flex; align-items:center; gap:8px; font-weight:600}
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background:var(--accent); box-shadow:0 0 12px var(--accent);
+    }
+    .chat-body{
+      padding:16px; overflow:auto; display:flex; flex-direction:column; gap:12px;
+      background:
+        radial-gradient(600px 180px at 80% -20%, rgba(0,255,255,.05), transparent 60%),
+        radial-gradient(520px 160px at -10% -10%, rgba(0,255,255,.04), transparent 60%);
+      flex:1;
+    }
+    .msg{max-width:78%; padding:12px 14px; border:1px solid var(--border); border-radius:14px}
+    .ai{background:rgba(255,255,255,.03)}
+    .user{background:rgba(0,255,255,.08); border-color:rgba(0,255,255,.25); align-self:flex-end}
+    .stamp{display:block; font-size:12px; color:#8aa6b3; margin-top:6px}
+    .chat-quick{
+      padding:10px 16px; border-top:1px dashed var(--border); display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .chip{
+      border:1px solid var(--border); padding:6px 10px; border-radius:999px; cursor:pointer;
+      background:#0f0f0f; font-size:13px;
+    }
+    .chip:hover{border-color:var(--accent)}
+    .chat-input{
+      padding:12px; border-top:1px solid var(--border); display:flex; gap:10px; background:#0f0f0f;
+    }
+    .chat-input input{
+      flex:1; padding:12px 14px; border-radius:12px; border:1px solid var(--border);
+      background:#0c0c0c; color:var(--text); outline:none;
+    }
+    .send{min-width:44px; border-radius:12px}
+
+    /* Features */
+    .features{padding:56px 0 32px}
+    .grid-feat{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    .feat{padding:18px; border-radius:14px}
+    .feat h4{margin:0 0 6px; color:var(--accent)}
+
+    /* FAQ */
+    .faq{padding:24px 0 56px}
+    details{
+      background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 16px;
+    }
+    details + details{margin-top:10px}
+    summary{cursor:pointer; font-weight:600}
+    details p{color:var(--muted); margin:10px 0 0}
+
+    /* Footer */
+    footer{
+      border-top:1px solid var(--border);
+      color:#9fb2bd;
+      padding:28px 0; font-size:14px;
+      background:#000;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px){
+      .hero-grid{grid-template-columns:1fr; gap:20px}
+      .title{font-size:32px}
+      .grid-feat{grid-template-columns:1fr}
+      .chat{height:520px}
+      .nav-actions{display:none}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="logo-wrap">
+        <a href="#">
+          <img src="../assets/images/Name.png" alt="LookAI Logo">
+        </a>
+        <div class="brand">LookAI Chat</div>
+      </div>
+      <div class="nav-actions">
+        <a class="btn" href="#features">Tính năng</a>
+        <a class="btn" href="#faq">FAQ</a>
+        <a class="btn btn-primary" href="#demo">Dùng thử ngay</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO + CHAT -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="pill">⚡ Trợ lý AI cho website của bạn</span>
+        <h1 class="title">Tăng chuyển đổi với<br/>Chatbot AI trả lời tức thì</h1>
+        <p class="lead">
+          LookAI tự động hỗ trợ khách, trả lời FAQ, tư vấn sản phẩm và tạo lead — hoạt động 24/7.
+          Tích hợp dễ dàng vào website chỉ với vài dòng code.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="chat.html">Dùng thử trong trình duyệt</a>
+          <a class="btn" href="mailto:contact@example.com">Liên hệ tư vấn</a>
+        </div>
+      </div>
+
+      <div id="demo" class="card chat">
+        <div class="chat-header">
+          <div class="status"><span class="dot"></span> LookAI đang trực tuyến</div>
+          <small style="color:#8aa6b3">Bản demo</small>
+        </div>
+
+        <div id="chatBody" class="chat-body">
+          <div class="msg ai">
+            Xin chào 👋 Mình là LookAI. Bạn muốn tích hợp chatbot cho website thế nào?
+            <span class="stamp">AI • vừa xong</span>
+          </div>
+          <div class="msg user">
+            Mất bao lâu để tích hợp?
+            <span class="stamp">Bạn • 10:21</span>
+          </div>
+          <div class="msg ai">
+            Chỉ vài phút với đoạn script nhúng. Không cần backend — cấu hình trực tiếp trên dashboard.
+            <span class="stamp">AI • 10:21</span>
+          </div>
+        </div>
+
+        <div class="chat-quick">
+          <button class="chip" data-q="Bảng giá như thế nào?">Bảng giá như thế nào?</button>
+          <button class="chip" data-q="Có hỗ trợ tiếng Việt không?">Có hỗ trợ tiếng Việt không?</button>
+          <button class="chip" data-q="Cách nhúng vào website?">Cách nhúng vào website?</button>
+        </div>
+
+        <form id="chatForm" class="chat-input">
+          <input id="chatInput" type="text" placeholder="Nhập tin nhắn và nhấn Enter..." autocomplete="off" />
+          <button class="btn btn-primary send" type="submit">Gửi</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURES -->
+  <section id="features" class="features">
+    <div class="container">
+      <h2 style="margin:0 0 14px">Vì sao chọn LookAI?</h2>
+      <p class="lead" style="margin:0 0 20px">Nhẹ, nhanh, dễ tích hợp — tối ưu cho website hiện đại.</p>
+
+      <div class="grid-feat">
+        <div class="card feat">
+          <h4>🧠 Trả lời theo tri thức</h4>
+          <p class="lead" style="font-size:15px">
+            Huấn luyện trên tài liệu, URL, file PDF của bạn. Kiểm soát dữ liệu & câu trả lời.
+          </p>
+        </div>
+        <div class="card feat">
+          <h4>⚙️ Nhúng 2 dòng code</h4>
+          <p class="lead" style="font-size:15px">
+            Dán <code>&lt;script&gt;</code> vào website. Tự động hiển thị widget chat ở góc màn hình.
+          </p>
+        </div>
+        <div class="card feat">
+          <h4>📈 Thu lead & Analytics</h4>
+          <p class="lead" style="font-size:15px">
+            Thu email/số điện thoại, xem câu hỏi phổ biến, đánh giá mức độ hài lòng.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="faq">
+    <div class="container">
+      <h2 style="margin:0 0 14px">Câu hỏi thường gặp</h2>
+      <p class="lead" style="margin:0 0 18px">Mọi thứ bạn cần để bắt đầu nhanh.</p>
+
+      <details class="card">
+        <summary>LookAI hỗ trợ ngôn ngữ nào?</summary>
+        <p>Tiếng Việt, tiếng Anh và hơn 90 ngôn ngữ khác. Bot tự phát hiện ngôn ngữ người dùng.</p>
+      </details>
+
+      <details class="card">
+        <summary>Cách tích hợp vào website?</summary>
+        <p>Trong dashboard, lấy đoạn <code>&lt;script&gt;</code> nhúng và dán trước thẻ <code>&lt;/body&gt;</code> trên website của bạn.</p>
+      </details>
+
+      <details class="card">
+        <summary>Dữ liệu có an toàn không?</summary>
+        <p>Dữ liệu được cách ly theo workspace. Bạn có thể xoá triệt để nguồn tri thức bất cứ lúc nào.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container" style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div>© <span id="y"></span> LookAI Chat. All rights reserved.</div>
+      <div>
+        <a href="#features">Tính năng</a> ·
+        <a href="#faq">FAQ</a> ·
+        <a href="mailto:contact@example.com">Liên hệ</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Minimal JS for demo chat -->
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const chatBody = document.getElementById('chatBody');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+
+    function appendMsg(text, role='user'){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (role === 'ai' ? 'ai' : 'user');
+      wrap.innerHTML = text + '<span class="stamp">' + (role==='ai'?'AI':'Bạn') + ' • ' + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + '</span>';
+      chatBody.appendChild(wrap);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function aiReply(userText){
+      // Trả lời demo tuỳ theo nội dung
+      const t = userText.toLowerCase();
+      let reply =
+        "Mình đã ghi nhận. Để tích hợp, bạn chỉ cần chèn đoạn script LookAI trước thẻ </body> là xong.";
+      if(t.includes('giá')||t.includes('bảng giá')||t.includes('pricing')){
+        reply = "Có gói Free (giới hạn tin nhắn) và Pro (không giới hạn + analytics). Hãy để lại email để mình gửi bảng giá chi tiết nhé.";
+      } else if(t.includes('tiếng việt')||t.includes('ngôn ngữ')){
+        reply = "Có! LookAI hỗ trợ tiếng Việt tốt và tự nhận diện ngôn ngữ người dùng.";
+      } else if(t.includes('nhúng')||t.includes('tích hợp')||t.includes('embed')){
+        reply = "Vào dashboard → Copy đoạn script → Dán trước </body> của website. Mất khoảng 2 phút.";
+      }
+      setTimeout(()=>appendMsg(reply,'ai'), 500);
+    }
+
+    chatForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if(!text) return;
+      appendMsg(text,'user');
+      chatInput.value = '';
+      aiReply(text);
+    });
+
+    document.querySelectorAll('.chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const q = btn.getAttribute('data-q');
+        appendMsg(q,'user');
+        aiReply(q);
+      });
+    });
+  </script>
+</body>
+</html>

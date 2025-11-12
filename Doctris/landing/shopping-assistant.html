@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Trợ Lý Mua Sắm - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trợ lý mua sắm thông minh - Tìm kiếm và mua sắm trang phục phù hợp" />
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        .product-card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .voucher-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .price-original {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        .price-sale {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+            <ul class="dropdowns list-inline mb-0">
+                <li class="list-inline-item mb-0 ms-1">
+                    <a href="index.html" class="btn btn-pills btn-soft-primary">
+                        <i class="uil uil-home"></i> Trang chủ
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-shopping-bag-3-line text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Trợ Lý Mua Sắm Thông Minh</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Tìm kiếm và mua sắm trang phục phù hợp với phong cách của bạn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <!-- Vouchers Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="ri-coupon-line text-primary me-2"></i>
+                        Voucher Dành Cho Bạn
+                    </h5>
+                </div>
+                <div class="col-md-4">
+                    <div class="voucher-card">
+                        <h6>Giảm 30%</h6>
+                        <p class="mb-2">Cho đơn hàng từ 500k</p>
+                        <small>Mã: LOOKAI30</small>
+                        <button class="btn btn-light btn-sm mt-2">Sao chép</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="voucher-card">
+                        <h6>Freeship</h6>
+                        <p class="mb-2">Miễn phí vận chuyển</p>
+                        <small>Mã: FREESHIP</small>
+                        <button class="btn btn-light btn-sm mt-2">Sao chép</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="voucher-card">
+                        <h6>Giảm 50k</h6>
+                        <p class="mb-2">Cho khách hàng mới</p>
+                        <small>Mã: NEWBIE50</small>
+                        <button class="btn btn-light btn-sm mt-2">Sao chép</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Filters -->
+                <div class="col-lg-3 mb-4">
+                    <div class="filter-section">
+                        <h6 class="mb-3">Bộ lọc</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Danh mục</label>
+                            <select class="form-select">
+                                <option>Tất cả</option>
+                                <option>Áo</option>
+                                <option>Quần</option>
+                                <option>Váy</option>
+                                <option>Giày dép</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Khoảng giá</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" placeholder="Từ">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" placeholder="Đến">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Màu sắc</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="black">
+                                    <label class="form-check-label" for="black">Đen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="white">
+                                    <label class="form-check-label" for="white">Trắng</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100">Áp dụng</button>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div class="col-lg-9">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card">
+                                <div class="position-relative">
+                                    <img src="../assets/images/blog/01.jpg" class="card-img-top" alt="Áo sơ mi">
+                                    <div class="discount-badge">-25%</div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">Áo sơ mi trắng</h6>
+                                    <p class="text-muted small">Chất liệu cotton cao cấp</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="price-original">400.000đ</span>
+                                            <span class="price-sale">300.000đ</span>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm">Mua ngay</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card">
+                                <div class="position-relative">
+                                    <img src="../assets/images/blog/02.jpg" class="card-img-top" alt="Quần jeans">
+                                    <div class="discount-badge">-15%</div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">Quần jeans xanh</h6>
+                                    <p class="text-muted small">Denim co giãn thoải mái</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="price-original">600.000đ</span>
+                                            <span class="price-sale">510.000đ</span>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm">Mua ngay</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card">
+                                <div class="position-relative">
+                                    <img src="../assets/images/blog/03.jpg" class="card-img-top" alt="Váy hoa">
+                                    <div class="discount-badge">-30%</div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">Váy hoa nhí</h6>
+                                    <p class="text-muted small">Thiết kế nữ tính, duyên dáng</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="price-original">500.000đ</span>
+                                            <span class="price-sale">350.000đ</span>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm">Mua ngay</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

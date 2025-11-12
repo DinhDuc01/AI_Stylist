@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Debug Weather App</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f1f1f1; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Weather App</h1>
+    
+    <div>
+        <button onclick="testWeatherAPI()">Test Weather API</button>
+        <button onclick="testGeminiAPI()">Test Gemini API</button>
+        <button onclick="testFullApp()">Test Full App</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <div id="logs"></div>
+
+    <script>
+        // API Keys
+        const WEATHER_API_KEY = 'd1ca006774aa4d9491d21940250611';
+        const GEMINI_API_KEY = 'AIzaSyBYgj63cniNH6OyRmGifLNo7peqgU_L6k8';
+
+        function log(message, type = 'log') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            logsDiv.appendChild(logDiv);
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        async function testWeatherAPI() {
+            log('🌤️ Testing Weather API...');
+            
+            try {
+                const url = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=Hanoi&lang=vi`;
+                log(`URL: ${url}`);
+                
+                const response = await fetch(url);
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log('✅ Weather API Success!', 'success');
+                log(`Temperature: ${data.current.temp_c}°C`);
+                log(`Condition: ${data.current.condition.text}`);
+                log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                
+            } catch (error) {
+                log(`❌ Weather API Error: ${error.message}`, 'error');
+                log(`Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testGeminiAPI() {
+            log('🤖 Testing Gemini API...');
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+                log(`URL: ${url}`);
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: 'Gợi ý outfit cho thời tiết 15°C, nhiều mây'
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 200
+                        }
+                    })
+                });
+                
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errorData.error?.message || response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log('✅ Gemini API Success!', 'success');
+                log(`AI Response: ${data.candidates[0].content.parts[0].text}`);
+                log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                
+            } catch (error) {
+                log(`❌ Gemini API Error: ${error.message}`, 'error');
+                log(`Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testFullApp() {
+            log('🚀 Testing Full App Integration...');
+            
+            try {
+                // Test if WeatherOutfitAI class exists
+                if (typeof WeatherOutfitAI === 'undefined') {
+                    log('❌ WeatherOutfitAI class not found. Checking if JS file loaded...', 'error');
+                    
+                    // Try to load the JS file
+                    const script = document.createElement('script');
+                    script.src = 'weather-ai-integration.js';
+                    script.onload = () => {
+                        log('✅ JavaScript file loaded successfully', 'success');
+                        continueFullAppTest();
+                    };
+                    script.onerror = () => {
+                        log('❌ Failed to load weather-ai-integration.js', 'error');
+                        log('Make sure the file exists and server is running', 'error');
+                    };
+                    document.head.appendChild(script);
+                    return;
+                }
+                
+                continueFullAppTest();
+                
+            } catch (error) {
+                log(`❌ Full App Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function continueFullAppTest() {
+            try {
+                log('Creating WeatherOutfitAI instance...');
+                const weatherAI = new WeatherOutfitAI();
+                log('✅ WeatherOutfitAI instance created', 'success');
+                
+                log('Testing getRealWeather...');
+                const weather = await weatherAI.getRealWeather('Hanoi');
+                log('✅ Weather data retrieved', 'success');
+                log(`Weather: ${weather.temperature}°C, ${weather.condition}`);
+                
+                log('Testing getAIOutfitSuggestion...');
+                const suggestion = await weatherAI.getAIOutfitSuggestion(weather, 'work');
+                log('✅ AI suggestion retrieved', 'success');
+                log(`Suggestion: ${JSON.stringify(suggestion, null, 2)}`);
+                
+            } catch (error) {
+                log(`❌ Full App Test Error: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on load
+        window.onload = function() {
+            log('🔄 Starting automatic tests...');
+            setTimeout(testWeatherAPI, 1000);
+            setTimeout(testGeminiAPI, 3000);
+        };
+    </script>
+</body>
+</html>

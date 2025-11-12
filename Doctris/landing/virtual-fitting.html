@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Thử Đồ Ảo - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Thử đồ ảo với công nghệ AR - Xem trước trang phục trên avatar của bạn" />
+    <meta name="keywords" content="Thử đồ ảo, AR, Avatar, Virtual fitting, Thời trang" />
+    <meta name="author" content="LookAI" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <!-- Bootstrap -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons -->
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <!-- Css -->
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <!-- MediaPipe và TensorFlow cho AR -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <style>
+        .avatar-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-display {
+            width: 300px;
+            height: 450px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-body {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 450"><rect width="300" height="450" fill="%23f8f9fa"/><circle cx="150" cy="80" r="40" fill="%23dee2e6"/><rect x="120" y="120" width="60" height="80" rx="10" fill="%23dee2e6"/><rect x="110" y="200" width="80" height="120" rx="10" fill="%23dee2e6"/><rect x="125" y="320" width="20" height="80" fill="%23dee2e6"/><rect x="155" y="320" width="20" height="80" fill="%23dee2e6"/><rect x="100" y="130" width="30" height="60" fill="%23dee2e6"/><rect x="170" y="130" width="30" height="60" fill="%23dee2e6"/></svg>') center/contain no-repeat;
+        }
+        .clothing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .clothing-item {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .clothing-item:hover {
+            transform: scale(1.05);
+        }
+        .clothing-item.selected {
+            border: 3px solid #007bff;
+            box-shadow: 0 0 20px rgba(0,123,255,0.3);
+        }
+        .fitting-controls {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .size-selector {
+            margin: 15px 0;
+        }
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        .color-option:hover,
+        .color-option.selected {
+            border-color: #007bff;
+            transform: scale(1.1);
+        }
+        .ar-camera {
+            background: #000;
+            border-radius: 15px;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ar-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        .ar-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .ar-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .ar-clothing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .pose-landmark {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .camera-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        .upload-mode {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #fff;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #00ff88;
+        }
+        .upload-area.dragover {
+            background: rgba(0,255,136,0.2);
+            border-color: #00ff88;
+        }
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .mode-selector {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .photo-canvas {
+            background: #f8f9fa;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .clothing-overlay-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .measurement-input {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar Start -->
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+
+            <div id="navigation">
+                <ul class="navigation-menu">
+                    <li><a href="index.html" class="sub-menu-item">Trang chủ</a></li>
+                    <li><a href="ai-stylist.html" class="sub-menu-item">AI Phối đồ</a></li>
+                    <li><a href="wardrobe.html" class="sub-menu-item">Tủ đồ số</a></li>
+                    <li><a href="virtual-fitting.html" class="sub-menu-item">Thử đồ ảo</a></li>
+                    <li><a href="departments.html" class="sub-menu-item">Lookbook</a></li>
+                    <li class="active"><a href="aboutus.html" class="sub-menu-item">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-body-scan-line text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Thử Đồ Ảo Thông Minh</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Xem trước trang phục trên avatar của bạn trước khi quyết định mua</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <div class="row">
+                <!-- Avatar Display -->
+                <div class="col-lg-6 mb-4">
+                    <div class="avatar-container">
+                        <h5 class="mb-4">
+                            <i class="ri-user-3-line text-primary me-2"></i>
+                            Avatar Của Bạn
+                        </h5>
+                        <div class="avatar-display" id="avatarDisplay">
+                            <div class="avatar-body"></div>
+                            <div class="clothing-overlay" id="clothingOverlay"></div>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-primary me-2" onclick="toggleARMode()">
+                                <i class="ri-camera-line me-1"></i>Chế độ AR
+                            </button>
+                            <button class="btn btn-outline-primary me-2" onclick="saveOutfit()">
+                                <i class="ri-save-line me-1"></i>Lưu outfit
+                            </button>
+                            <button class="btn btn-outline-success" onclick="shareOutfit()">
+                                <i class="ri-share-line me-1"></i>Chia sẻ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls Panel -->
+                <div class="col-lg-6">
+                    <!-- Measurements -->
+                    <div class="fitting-controls mb-4">
+                        <h5 class="mb-3">
+                            <i class="ri-ruler-line text-primary me-2"></i>
+                            Số Đo Cơ Thể
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="measurement-input">
+                                    <label class="form-label">Chiều cao (cm)</label>
+                                    <input type="number" class="form-control" value="165" id="height">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="measurement-input">
+                                    <label class="form-label">Cân nặng (kg)</label>
+                                    <input type="number" class="form-control" value="55" id="weight">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="measurement-input">
+                                    <label class="form-label">Vòng ngực (cm)</label>
+                                    <input type="number" class="form-control" value="85" id="bust">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="measurement-input">
+                                    <label class="form-label">Vòng eo (cm)</label>
+                                    <input type="number" class="form-control" value="65" id="waist">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm mt-2" onclick="updateAvatar()">
+                            <i class="ri-refresh-line me-1"></i>Cập nhật avatar
+                        </button>
+                    </div>
+
+                    <!-- Clothing Selection -->
+                    <div class="fitting-controls">
+                        <h5 class="mb-3">
+                            <i class="ri-shirt-line text-primary me-2"></i>
+                            Chọn Trang Phục
+                        </h5>
+                        
+                        <!-- Category Tabs -->
+                        <ul class="nav nav-pills mb-3" id="clothingTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tops-tab" data-bs-toggle="pill" data-bs-target="#tops" type="button">Áo</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="bottoms-tab" data-bs-toggle="pill" data-bs-target="#bottoms" type="button">Quần</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="dresses-tab" data-bs-toggle="pill" data-bs-target="#dresses" type="button">Váy</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="shoes-tab" data-bs-toggle="pill" data-bs-target="#shoes" type="button">Giày</button>
+                            </li>
+                        </ul>
+
+                        <!-- Clothing Items -->
+                        <div class="tab-content" id="clothingTabContent">
+                            <!-- Tops -->
+                            <div class="tab-pane fade show active" id="tops" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('top', 'shirt-white')">
+                                            <img src="../assets/images/blog/01.jpg" class="img-fluid" alt="Áo sơ mi trắng">
+                                            <small class="d-block text-center mt-1">Áo sơ mi</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('top', 'tshirt-blue')">
+                                            <img src="../assets/images/blog/02.jpg" class="img-fluid" alt="Áo thun xanh">
+                                            <small class="d-block text-center mt-1">Áo thun</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('top', 'blouse-pink')">
+                                            <img src="../assets/images/blog/03.jpg" class="img-fluid" alt="Áo blouse hồng">
+                                            <small class="d-block text-center mt-1">Áo blouse</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottoms -->
+                            <div class="tab-pane fade" id="bottoms" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('bottom', 'jeans-blue')">
+                                            <img src="../assets/images/blog/04.jpg" class="img-fluid" alt="Quần jeans">
+                                            <small class="d-block text-center mt-1">Quần jeans</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('bottom', 'pants-black')">
+                                            <img src="../assets/images/blog/05.jpg" class="img-fluid" alt="Quần âu đen">
+                                            <small class="d-block text-center mt-1">Quần âu</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('bottom', 'skirt-red')">
+                                            <img src="../assets/images/blog/06.jpg" class="img-fluid" alt="Chân váy đỏ">
+                                            <small class="d-block text-center mt-1">Chân váy</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dresses -->
+                            <div class="tab-pane fade" id="dresses" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('dress', 'dress-floral')">
+                                            <img src="../assets/images/blog/07.jpg" class="img-fluid" alt="Váy hoa">
+                                            <small class="d-block text-center mt-1">Váy hoa</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('dress', 'dress-black')">
+                                            <img src="../assets/images/blog/08.jpg" class="img-fluid" alt="Váy đen">
+                                            <small class="d-block text-center mt-1">Váy đen</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shoes -->
+                            <div class="tab-pane fade" id="shoes" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('shoes', 'sneakers-white')">
+                                            <img src="../assets/images/blog/09.jpg" class="img-fluid" alt="Giày sneaker">
+                                            <small class="d-block text-center mt-1">Sneaker</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="clothing-item" onclick="selectClothing('shoes', 'heels-black')">
+                                            <img src="../assets/images/blog/10.jpg" class="img-fluid" alt="Giày cao gót">
+                                            <small class="d-block text-center mt-1">Cao gót</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Size & Color Selection -->
+                        <div class="mt-4" id="itemControls" style="display: none;">
+                            <div class="size-selector">
+                                <label class="form-label">Kích thước:</label>
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="size" id="size-s" value="S">
+                                    <label class="btn btn-outline-primary" for="size-s">S</label>
+                                    <input type="radio" class="btn-check" name="size" id="size-m" value="M" checked>
+                                    <label class="btn btn-outline-primary" for="size-m">M</label>
+                                    <input type="radio" class="btn-check" name="size" id="size-l" value="L">
+                                    <label class="btn btn-outline-primary" for="size-l">L</label>
+                                    <input type="radio" class="btn-check" name="size" id="size-xl" value="XL">
+                                    <label class="btn btn-outline-primary" for="size-xl">XL</label>
+                                </div>
+                            </div>
+
+                            <div class="color-picker">
+                                <label class="form-label d-block">Màu sắc:</label>
+                                <div class="color-option selected" style="background: #000;" onclick="selectColor('#000')"></div>
+                                <div class="color-option" style="background: #fff; border-color: #ccc;" onclick="selectColor('#fff')"></div>
+                                <div class="color-option" style="background: #007bff;" onclick="selectColor('#007bff')"></div>
+                                <div class="color-option" style="background: #dc3545;" onclick="selectColor('#dc3545')"></div>
+                                <div class="color-option" style="background: #28a745;" onclick="selectColor('#28a745')"></div>
+                                <div class="color-option" style="background: #ffc107;" onclick="selectColor('#ffc107')"></div>
+                            </div>
+
+                            <button class="btn btn-primary btn-sm mt-3" onclick="applyToAvatar()">
+                                <i class="ri-check-line me-1"></i>Áp dụng lên avatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AR Mode Modal -->
+            <div class="modal fade" id="arModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="ri-camera-line me-2"></i>Chế độ AR - Thử đồ thực tế
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="ar-camera" id="arCameraContainer">
+                                <!-- Camera Video -->
+                                <video id="arVideo" class="ar-video" autoplay muted playsinline style="display: none;"></video>
+                                
+                                <!-- Canvas cho AR overlay -->
+                                <canvas id="arCanvas" class="ar-canvas"></canvas>
+                                
+                                <!-- Overlay quần áo AR -->
+                                <div id="arClothingOverlay" class="ar-clothing-overlay"></div>
+                                
+                                <!-- Status indicator -->
+                                <div id="cameraStatus" class="camera-status">Đang khởi tạo...</div>
+                                
+                                <!-- Mode Selector -->
+                                <div class="mode-selector">
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="arMode" id="cameraMode" value="camera" checked>
+                                        <label class="btn btn-outline-light" for="cameraMode">
+                                            <i class="ri-camera-line me-1"></i>Camera
+                                        </label>
+                                        <input type="radio" class="btn-check" name="arMode" id="uploadMode" value="upload">
+                                        <label class="btn btn-outline-light" for="uploadMode">
+                                            <i class="ri-image-line me-1"></i>Upload Ảnh
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Camera Controls -->
+                                <div class="ar-controls" id="cameraControls">
+                                    <button class="btn btn-success btn-sm" id="startCameraBtn" onclick="startARCamera()">
+                                        <i class="ri-camera-line me-1"></i>Bắt đầu
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" id="stopCameraBtn" onclick="stopARCamera()" style="display: none;">
+                                        <i class="ri-camera-off-line me-1"></i>Dừng
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="capturePhoto()">
+                                        <i class="ri-camera-3-line me-1"></i>Chụp ảnh
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="togglePoseDetection()">
+                                        <i class="ri-body-scan-line me-1"></i>Pose
+                                    </button>
+                                </div>
+
+                                <!-- Upload Mode -->
+                                <div id="uploadModeContainer" class="upload-mode" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6><i class="ri-user-line me-2"></i>Upload Ảnh Người</h6>
+                                            <div class="upload-area" id="personUploadArea" onclick="document.getElementById('personImageInput').click()">
+                                                <div id="personUploadContent">
+                                                    <i class="ri-upload-cloud-2-line display-4 mb-2"></i>
+                                                    <p>Kéo thả hoặc click để chọn ảnh người</p>
+                                                    <small>JPG, PNG, WEBP (Max 10MB)</small>
+                                                </div>
+                                                <img id="uploadedPersonImage" class="uploaded-image" style="display: none;">
+                                            </div>
+                                            <input type="file" id="personImageInput" accept="image/*" style="display: none;">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6><i class="ri-shirt-line me-2"></i>Upload Ảnh Quần Áo</h6>
+                                            <div class="upload-area" id="clothingUploadArea" onclick="document.getElementById('clothingImageInput').click()">
+                                                <div id="clothingUploadContent">
+                                                    <i class="ri-upload-cloud-2-line display-4 mb-2"></i>
+                                                    <p>Kéo thả hoặc click để chọn ảnh quần áo</p>
+                                                    <small>JPG, PNG, WEBP (Max 5MB)</small>
+                                                </div>
+                                                <img id="uploadedClothingImage" class="uploaded-image" style="display: none;">
+                                            </div>
+                                            <input type="file" id="clothingImageInput" accept="image/*" style="display: none;">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Photo Processing Canvas -->
+                                    <div class="mt-3">
+                                        <canvas id="photoCanvas" class="photo-canvas" style="display: none; width: 100%; max-height: 400px;"></canvas>
+                                        <canvas id="photoOverlayCanvas" class="clothing-overlay-photo" style="display: none;"></canvas>
+                                    </div>
+                                    
+                                    <!-- Upload Controls -->
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary me-2" onclick="processUploadedImages()" id="processBtn" disabled>
+                                            <i class="ri-magic-line me-1"></i>Thử Đồ
+                                        </button>
+                                        <button class="btn btn-success me-2" onclick="downloadResult()" id="downloadBtn" style="display: none;">
+                                            <i class="ri-download-line me-1"></i>Tải Xuống
+                                        </button>
+                                        <button class="btn btn-outline-light" onclick="resetUpload()">
+                                            <i class="ri-refresh-line me-1"></i>Reset
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Initial state -->
+                                <div id="arInitialState" class="text-center text-white" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20;">
+                                    <i class="ri-camera-line display-4 mb-3"></i>
+                                    <h5>Camera AR Thử Đồ</h5>
+                                    <p class="text-muted">Nhấn "Bắt đầu" để kích hoạt camera</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="notFoundModal" tabindex="-1" aria-labelledby="notFoundModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="notFoundModalLabel"><i class="ri-error-warning-line me-2"></i>Không Tìm Thấy Đồ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Rất tiếc, chúng tôi không tìm thấy các món đồ sau trong tủ đồ của bạn:</p>
+                    <ul id="notFoundList" class="list-group">
+                    </ul>
+                    <p class="mt-3">Bạn có thể thêm chúng vào tủ đồ ở trang <a href="wardrobe.html">Quản lý Tủ Đồ</a>.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <a href="#" onclick="topFunction()" id="back-to-top" class="back-to-top fs-5"><i data-feather="arrow-up" class="fea icon-sm icons align-middle"></i></a>
+
+    <!-- Javascript -->
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        const API_BASE_URL = 'https://mlpn8h4s-3000.asse.devtunnels.ms';
+        
+        let allWardrobeItems = []; 
+        let selectedItems = {
+            'Áo': null, 'Quần': null, 'Váy': null,
+            'Áo khoác': null, 'Giày dép': null, 'Phụ kiện': null
+        };
+        
+        const BASE_AVATAR_HEIGHT = 600;
+        const BASE_AVATAR_WIDTH = 400;
+        const BASE_BODY_HEIGHT = 165;
+        const BASE_BODY_WEIGHT = 55;
+
+        // THÊM MỚI: Biến cho modal
+        let notFoundModal = null;
+        
+        /**
+         * Chạy khi trang tải
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // THÊM MỚI: Khởi tạo modal
+            notFoundModal = new bootstrap.Modal(document.getElementById('notFoundModal'));
+            
+            loadFullWardrobe(); // Sẽ tự động gọi checkUrlAndApplyOutfit()
+            
+            document.getElementById('bodyMeasurementsForm').addEventListener('submit', updateAvatarSize);
+            feather.replace();
+        });
+
+        /**
+         * 1. Tải toàn bộ tủ đồ từ API
+         */
+        async function loadFullWardrobe() {
+            const accordionContainer = document.getElementById('wardrobeAccordion');
+            const loadingText = document.getElementById('wardrobeLoading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet`);
+                const data = await response.json();
+                
+                if (data.success && data.items) {
+                    allWardrobeItems = data.items;
+                    renderWardrobe(allWardrobeItems);
+                    loadingText.style.display = 'none';
+
+                    // --- CẬP NHẬT: Tự động thử đồ sau khi tủ đồ đã tải ---
+                    await checkUrlAndApplyOutfit();
+                    // ----------------------------------------------------
+
+                } else {
+                    loadingText.innerText = 'Không thể tải tủ đồ.';
+                    loadingText.classList.add('text-danger');
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải tủ đồ:', error);
+                loadingText.innerText = 'Lỗi kết nối server.';
+                loadingText.classList.add('text-danger');
+            }
+        }
+
+        /**
+         * 2. Hiển thị tủ đồ ra các Accordion
+         */
+        function renderWardrobe(items) {
+            const accordionContainer = document.getElementById('wardrobeAccordion');
+            accordionContainer.innerHTML = ''; 
+
+            const categories = {
+                'Áo': [], 'Quần': [], 'Váy': [],
+                'Áo khoác': [], 'Giày dép': [], 'Phụ kiện': []
+            };
+            
+            items.forEach(item => {
+                if (categories[item.category]) {
+                    categories[item.category].push(item);
+                }
+            });
+
+            for (const [category, itemsInCategory] of Object.entries(categories)) {
+                if (itemsInCategory.length === 0) continue; 
+                
+                const categoryId = `category-${category.replace(/\s+/g, '-')}`;
+                const itemsHtml = itemsInCategory.map(item => `
+                    <div class="clothing-item" id="item-${item._id}" onclick="wearItem('${item._id}')">
+                        <img src="${API_BASE_URL}${item.imageUrl}" alt="${item.itemName}">
+                        <div>
+                            <strong>${item.itemName}</strong>
+                            <br>
+                            <small class="text-muted">${item.color || ''} - ${item.purpose}</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                const accordionHtml = `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-${categoryId}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
+                                ${category} (${itemsInCategory.length})
+                            </button>
+                        </h2>
+                        <div id="collapse-${categoryId}" class="accordion-collapse collapse" aria-labelledby="heading-${categoryId}">
+                            <div class="accordion-body clothing-list">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                accordionContainer.innerHTML += accordionHtml;
+            }
+        }
+
+        /**
+         * 3. Xử lý "Mặc đồ" (Click vào item)
+         * CẬP NHẬT: Tách logic "mặc đồ" ra để có thể gọi tự động
+         */
+        function wearItem(itemId) {
+            const item = allWardrobeItems.find(i => i._id === itemId);
+            if (!item) return;
+            
+            applyItemToAvatar(item);
+            updateSelectionVisuals();
+        }
+
+        /**
+         * 4. HÀM MỚI: Áp dụng item lên avatar (logic cốt lõi)
+         */
+        function applyItemToAvatar(item) {
+            const category = item.category;
+            const fullImageUrl = `${API_BASE_URL}${item.imageUrl}`;
+            let layerId = '';
+
+            switch(category) {
+                case 'Áo': 
+                    layerId = 'avatar-layer-ao'; 
+                    document.getElementById('avatar-layer-vay').src = ''; // Bỏ váy
+                    selectedItems['Váy'] = null;
+                    break;
+                case 'Quần': 
+                    layerId = 'avatar-layer-quan'; 
+                    document.getElementById('avatar-layer-vay').src = ''; // Bỏ váy
+                    selectedItems['Váy'] = null;
+                    break;
+                case 'Váy': 
+                    layerId = 'avatar-layer-vay'; 
+                    document.getElementById('avatar-layer-ao').src = ''; // Bỏ áo
+                    document.getElementById('avatar-layer-quan').src = ''; // Bỏ quần
+                    selectedItems['Áo'] = null;
+                    selectedItems['Quần'] = null;
+                    break;
+                case 'Áo khoác': layerId = 'avatar-layer-ao-khoac'; break;
+                case 'Giày dép': layerId = 'avatar-layer-giay-dep'; break;
+                case 'Phụ kiện': layerId = 'avatar-layer-phu-kien'; break;
+            }
+            
+            if (layerId) {
+                document.getElementById(layerId).src = fullImageUrl;
+                selectedItems[category] = item._id;
+            }
+        }
+
+        /**
+         * 5. Cập nhật giao diện (visual) cho item được chọn
+         */
+        function updateSelectionVisuals() {
+            document.querySelectorAll('.clothing-item.active').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            if (selectedItems['Váy']) {
+                selectedItems['Áo'] = null;
+                selectedItems['Quần'] = null;
+            }
+            if (selectedItems['Áo'] || selectedItems['Quần']) {
+                selectedItems['Váy'] = null;
+            }
+            
+            for (const [category, itemId] of Object.entries(selectedItems)) {
+                if (itemId) {
+                    const itemElement = document.getElementById(`item-${itemId}`);
+                    if (itemElement) {
+                        itemElement.classList.add('active');
+                    }
+                }
+            }
+        }
+        
+        /**
+         * 6. "Giả lập" cập nhật số đo
+         */
+        function updateAvatarSize(event) {
+            event.preventDefault(); 
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const avatarContainer = document.getElementById('avatarContainer');
+
+            const heightRatio = height / BASE_BODY_HEIGHT;
+            const weightRatio = weight / BASE_BODY_WEIGHT;
+            const newHeight = BASE_AVATAR_HEIGHT * heightRatio;
+            const newWidth = BASE_AVATAR_WIDTH * weightRatio;
+
+            avatarContainer.style.maxWidth = `${newWidth}px`;
+            avatarContainer.style.height = `${newHeight}px`;
+            
+            alert('Đã cập nhật số đo avatar! (Giả lập)');
+        }
+
+        // 7. Các hàm lưu/chia sẻ (giữ nguyên)
+        function saveOutfit() {
+            const outfitItems = Object.values(selectedItems).filter(id => id !== null);
+            if (outfitItems.length > 0) {
+                alert(`Đã lưu ${outfitItems.length} món đồ!`);
+            } else {
+                alert('Vui lòng chọn ít nhất một món đồ để lưu!');
+            }
+        }
+        function shareOutfit() {
+            const outfitItems = Object.values(selectedItems).filter(id => id !== null);
+            if (outfitItems.length > 0) {
+                const shareText = `Xem bộ đồ của tôi trên LookAI! ${outfitItems.length} món đồ được chọn.`;
+                if (navigator.share) {
+                    navigator.share({ title: 'LookAI Outfit', text: shareText, url: window.location.href });
+                } else {
+                    navigator.clipboard.writeText(shareText + ' ' + window.location.href);
+                    alert('Đã copy link chia sẻ!');
+                }
+            } else {
+                alert('Vui lòng chọn ít nhất một món đồ để chia sẻ!');
+            }
+        }
+        
+        
+        // ---
+        // --- BẮT ĐẦU PHẦN LOGIC THÊM MỚI ---
+        // ---
+
+        /**
+         * 8. HÀM MỚI: Kiểm tra URL và tự động mặc đồ
+         */
+        async function checkUrlAndApplyOutfit() {
+            const params = new URLSearchParams(window.location.search);
+            const itemsToTryJson = params.get('try');
+
+            if (!itemsToTryJson) {
+                return; // Không có gì để thử, thoát
+            }
+
+            // Xóa param khỏi URL để tránh bị lặp lại khi F5
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            try {
+                const itemNames = JSON.parse(decodeURIComponent(itemsToTryJson));
+                const foundItems = [];
+                const notFoundItems = [];
+
+                for (const name of itemNames) {
+                    const found = fuzzyFindItem(name); // Tìm trong tủ đồ
+                    if (found) {
+                        foundItems.push(found);
+                    } else {
+                        notFoundItems.push(name);
+                    }
+                }
+
+                // Mặc các đồ tìm thấy
+                for (const item of foundItems) {
+                    applyItemToAvatar(item);
+                }
+                updateSelectionVisuals(); // Cập nhật visual 1 lần
+
+                // Hiển thị popup nếu có đồ không tìm thấy
+                if (notFoundItems.length > 0) {
+                    showNotFoundModal(notFoundItems);
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi xử lý outfit từ URL:', error);
+                alert('Đã xảy ra lỗi khi cố gắng thử bộ đồ.');
+            }
+        }
+
+        /**
+         * 9. HÀM MỚI: Tìm kiếm thông minh (Fuzzy Find)
+         * Tìm "Áo sơ mi trắng" trong "Sơ mi trắng công sở"
+         */
+        function fuzzyFindItem(aiName) {
+            const aiWords = aiName.toLowerCase().split(' ').filter(w => w.length > 1); // Tách tên AI thành các từ
+            
+            const bestMatch = allWardrobeItems.find(dbItem => {
+                const dbNameLower = dbItem.itemName.toLowerCase();
+                // Kiểm tra xem MỌI TỪ trong tên AI có xuất hiện trong tên DB không
+                return aiWords.every(word => dbNameLower.includes(word));
+            });
+
+            return bestMatch; // Trả về item đầu tiên tìm thấy
+        }
+
+        /**
+         * 10. HÀM MỚI: Hiển thị Modal không tìm thấy
+         */
+        function showNotFoundModal(notFoundItems) {
+            const listElement = document.getElementById('notFoundList');
+            listElement.innerHTML = ''; // Xóa sạch danh sách cũ
+
+            notFoundItems.forEach(name => {
+                listElement.innerHTML += `<li class="list-group-item">${name}</li>`;
+            });
+
+            notFoundModal.show();
+        }
+
+        // ===== AR CAMERA & POSE DETECTION =====
+        let arVideo, arCanvas, arCtx;
+        let pose, camera;
+        let isARActive = false;
+        let isPoseDetectionEnabled = true;
+        let currentStream = null;
+        let selectedARClothing = null;
+
+        // AR Clothing templates
+        const arClothingTemplates = {
+            'shirt': {
+                name: 'Áo sơ mi',
+                image: '../assets/images/ar-clothes/shirt.png',
+                landmarks: [11, 12, 23, 24], // Vai trái, vai phải, hông trái, hông phải
+                type: 'top'
+            },
+            'tshirt': {
+                name: 'Áo thun',
+                image: '../assets/images/ar-clothes/tshirt.png',
+                landmarks: [11, 12, 23, 24],
+                type: 'top'
+            },
+            'dress': {
+                name: 'Váy',
+                image: '../assets/images/ar-clothes/dress.png',
+                landmarks: [11, 12, 25, 26], // Vai + đầu gối
+                type: 'dress'
+            },
+            'pants': {
+                name: 'Quần dài',
+                image: '../assets/images/ar-clothes/pants.png',
+                landmarks: [23, 24, 27, 28], // Hông + mắt cá chân
+                type: 'bottom'
+            }
+        };
+
+        /**
+         * Khởi tạo AR Camera
+         */
+        async function startARCamera() {
+            try {
+                updateCameraStatus('Đang khởi tạo camera...');
+                
+                // Khởi tạo elements
+                arVideo = document.getElementById('arVideo');
+                arCanvas = document.getElementById('arCanvas');
+                arCtx = arCanvas.getContext('2d');
+                
+                // Yêu cầu quyền truy cập camera
+                currentStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user' // Camera trước
+                    },
+                    audio: false
+                });
+                
+                arVideo.srcObject = currentStream;
+                arVideo.style.display = 'block';
+                
+                // Đợi video load
+                await new Promise((resolve) => {
+                    arVideo.onloadedmetadata = () => {
+                        arCanvas.width = arVideo.videoWidth;
+                        arCanvas.height = arVideo.videoHeight;
+                        resolve();
+                    };
+                });
+                
+                // Khởi tạo MediaPipe Pose
+                await initializePoseDetection();
+                
+                // Cập nhật UI
+                document.getElementById('arInitialState').style.display = 'none';
+                document.getElementById('startCameraBtn').style.display = 'none';
+                document.getElementById('stopCameraBtn').style.display = 'inline-block';
+                
+                isARActive = true;
+                updateCameraStatus('Camera đang hoạt động');
+                
+                // Bắt đầu render loop
+                renderARFrame();
+                
+            } catch (error) {
+                console.error('Lỗi khởi tạo camera:', error);
+                updateCameraStatus('Lỗi: Không thể truy cập camera');
+                alert('Không thể truy cập camera. Vui lòng cho phép quyền truy cập camera và thử lại.');
+            }
+        }
+
+        /**
+         * Dừng AR Camera
+         */
+        function stopARCamera() {
+            isARActive = false;
+            
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            
+            if (arVideo) {
+                arVideo.style.display = 'none';
+                arVideo.srcObject = null;
+            }
+            
+            if (pose) {
+                pose.close();
+                pose = null;
+            }
+            
+            // Reset UI
+            document.getElementById('arInitialState').style.display = 'block';
+            document.getElementById('startCameraBtn').style.display = 'inline-block';
+            document.getElementById('stopCameraBtn').style.display = 'none';
+            
+            updateCameraStatus('Camera đã dừng');
+            
+            // Clear canvas
+            if (arCtx) {
+                arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
+            }
+        }
+
+        /**
+         * Khởi tạo MediaPipe Pose Detection
+         */
+        async function initializePoseDetection() {
+            if (typeof Pose === 'undefined') {
+                console.warn('MediaPipe Pose không khả dụng');
+                return;
+            }
+            
+            pose = new Pose({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+                }
+            });
+            
+            pose.setOptions({
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                enableSegmentation: false,
+                smoothSegmentation: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            
+            pose.onResults(onPoseResults);
+            
+            // Khởi tạo camera helper
+            if (typeof Camera !== 'undefined') {
+                camera = new Camera(arVideo, {
+                    onFrame: async () => {
+                        if (pose && isARActive) {
+                            await pose.send({ image: arVideo });
+                        }
+                    },
+                    width: 1280,
+                    height: 720
+                });
+                camera.start();
+            }
+        }
+
+        /**
+         * Xử lý kết quả pose detection
+         */
+        function onPoseResults(results) {
+            if (!arCtx || !isARActive) return;
+            
+            // Clear canvas
+            arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
+            
+            if (results.poseLandmarks && isPoseDetectionEnabled) {
+                // Vẽ pose landmarks
+                drawPoseLandmarks(results.poseLandmarks);
+                
+                // Vẽ AR clothing nếu có
+                if (selectedARClothing) {
+                    drawARClothing(results.poseLandmarks, selectedARClothing);
+                }
+            }
+        }
+
+        /**
+         * Vẽ pose landmarks
+         */
+        function drawPoseLandmarks(landmarks) {
+            arCtx.fillStyle = '#00FF00';
+            arCtx.strokeStyle = '#00FF00';
+            arCtx.lineWidth = 2;
+            
+            // Vẽ các điểm quan trọng
+            const importantLandmarks = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+            
+            importantLandmarks.forEach(index => {
+                if (landmarks[index]) {
+                    const x = landmarks[index].x * arCanvas.width;
+                    const y = landmarks[index].y * arCanvas.height;
+                    
+                    arCtx.beginPath();
+                    arCtx.arc(x, y, 4, 0, 2 * Math.PI);
+                    arCtx.fill();
+                }
+            });
+            
+            // Vẽ skeleton
+            const connections = [
+                [11, 12], [11, 13], [12, 14], [13, 15], [14, 16], // Vai và tay
+                [11, 23], [12, 24], [23, 24], // Thân
+                [23, 25], [24, 26], [25, 27], [26, 28] // Chân
+            ];
+            
+            connections.forEach(([start, end]) => {
+                if (landmarks[start] && landmarks[end]) {
+                    const startX = landmarks[start].x * arCanvas.width;
+                    const startY = landmarks[start].y * arCanvas.height;
+                    const endX = landmarks[end].x * arCanvas.width;
+                    const endY = landmarks[end].y * arCanvas.height;
+                    
+                    arCtx.beginPath();
+                    arCtx.moveTo(startX, startY);
+                    arCtx.lineTo(endX, endY);
+                    arCtx.stroke();
+                }
+            });
+        }
+
+        /**
+         * Vẽ AR clothing overlay
+         */
+        function drawARClothing(landmarks, clothingType) {
+            const template = arClothingTemplates[clothingType];
+            if (!template) return;
+            
+            // Tính toán vị trí và kích thước dựa trên landmarks
+            const requiredLandmarks = template.landmarks;
+            const points = requiredLandmarks.map(index => landmarks[index]).filter(Boolean);
+            
+            if (points.length < requiredLandmarks.length) return;
+            
+            // Tính bounding box
+            const xs = points.map(p => p.x * arCanvas.width);
+            const ys = points.map(p => p.y * arCanvas.height);
+            
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const width = maxX - minX;
+            const height = maxY - minY;
+            
+            // Vẽ clothing overlay (giả lập)
+            arCtx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            arCtx.strokeStyle = '#FF0000';
+            arCtx.lineWidth = 3;
+            
+            if (template.type === 'top') {
+                // Vẽ áo
+                arCtx.fillRect(minX - width * 0.1, minY, width * 1.2, height * 0.8);
+                arCtx.strokeRect(minX - width * 0.1, minY, width * 1.2, height * 0.8);
+            } else if (template.type === 'bottom') {
+                // Vẽ quần
+                arCtx.fillRect(minX - width * 0.1, minY, width * 1.2, height);
+                arCtx.strokeRect(minX - width * 0.1, minY, width * 1.2, height);
+            } else if (template.type === 'dress') {
+                // Vẽ váy
+                arCtx.fillRect(minX - width * 0.2, minY, width * 1.4, height);
+                arCtx.strokeRect(minX - width * 0.2, minY, width * 1.4, height);
+            }
+            
+            // Hiển thị tên quần áo
+            arCtx.fillStyle = '#FFFFFF';
+            arCtx.font = '16px Arial';
+            arCtx.fillText(template.name, minX, minY - 10);
+        }
+
+        /**
+         * Render AR frame
+         */
+        function renderARFrame() {
+            if (!isARActive) return;
+            requestAnimationFrame(renderARFrame);
+        }
+
+        /**
+         * Toggle pose detection
+         */
+        function togglePoseDetection() {
+            isPoseDetectionEnabled = !isPoseDetectionEnabled;
+            const btn = event.target;
+            if (isPoseDetectionEnabled) {
+                btn.innerHTML = '<i class="ri-body-scan-line me-1"></i>Pose';
+                btn.classList.remove('btn-outline-warning');
+                btn.classList.add('btn-warning');
+            } else {
+                btn.innerHTML = '<i class="ri-body-scan-line me-1"></i>Pose (Tắt)';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-outline-warning');
+            }
+        }
+
+        /**
+         * Chụp ảnh AR
+         */
+        function capturePhoto() {
+            if (!arCanvas || !isARActive) {
+                alert('Vui lòng bật camera trước khi chụp ảnh!');
+                return;
+            }
+            
+            // Tạo canvas tổng hợp
+            const captureCanvas = document.createElement('canvas');
+            captureCanvas.width = arCanvas.width;
+            captureCanvas.height = arCanvas.height;
+            const captureCtx = captureCanvas.getContext('2d');
+            
+            // Vẽ video frame
+            captureCtx.drawImage(arVideo, 0, 0, captureCanvas.width, captureCanvas.height);
+            
+            // Vẽ AR overlay
+            captureCtx.drawImage(arCanvas, 0, 0);
+            
+            // Download ảnh
+            const link = document.createElement('a');
+            link.download = `lookai-ar-${Date.now()}.png`;
+            link.href = captureCanvas.toDataURL();
+            link.click();
+            
+            // Hiệu ứng flash
+            const flash = document.createElement('div');
+            flash.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: white; opacity: 0.8; z-index: 9999;
+                pointer-events: none;
+            `;
+            document.body.appendChild(flash);
+            setTimeout(() => document.body.removeChild(flash), 100);
+        }
+
+        /**
+         * Cập nhật trạng thái camera
+         */
+        function updateCameraStatus(status) {
+            const statusEl = document.getElementById('cameraStatus');
+            if (statusEl) {
+                statusEl.textContent = status;
+            }
+        }
+
+        /**
+         * Chọn AR clothing để thử
+         */
+        function selectARClothing(type) {
+            selectedARClothing = type;
+            updateCameraStatus(`Đang thử: ${arClothingTemplates[type]?.name || type}`);
+        }
+
+        /**
+         * Mở AR Modal
+         */
+        function toggleARMode() {
+            const arModal = new bootstrap.Modal(document.getElementById('arModal'));
+            arModal.show();
+        }
+
+        // ===== UPLOAD MODE FUNCTIONALITY =====
+        let uploadedPersonImg = null;
+        let uploadedClothingImg = null;
+        let photoCanvas, photoCtx, photoOverlayCanvas, photoOverlayCtx;
+        let personPose = null;
+
+        /**
+         * Khởi tạo upload mode
+         */
+        function initializeUploadMode() {
+            photoCanvas = document.getElementById('photoCanvas');
+            photoCtx = photoCanvas.getContext('2d');
+            photoOverlayCanvas = document.getElementById('photoOverlayCanvas');
+            photoOverlayCtx = photoOverlayCanvas.getContext('2d');
+
+            // Setup file inputs
+            document.getElementById('personImageInput').addEventListener('change', handlePersonImageUpload);
+            document.getElementById('clothingImageInput').addEventListener('change', handleClothingImageUpload);
+
+            // Setup drag and drop
+            setupDragAndDrop('personUploadArea', 'personImageInput');
+            setupDragAndDrop('clothingUploadArea', 'clothingImageInput');
+
+            // Setup mode switching
+            document.querySelectorAll('input[name="arMode"]').forEach(radio => {
+                radio.addEventListener('change', switchARMode);
+            });
+        }
+
+        /**
+         * Setup drag and drop cho upload areas
+         */
+        function setupDragAndDrop(areaId, inputId) {
+            const area = document.getElementById(areaId);
+            const input = document.getElementById(inputId);
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.remove('dragover'), false);
+            });
+
+            area.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    input.files = files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            }, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        /**
+         * Xử lý upload ảnh người
+         */
+        function handlePersonImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File quá lớn! Vui lòng chọn ảnh dưới 10MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedPersonImg = img;
+                    displayUploadedImage('uploadedPersonImage', 'personUploadContent', img);
+                    checkUploadComplete();
+                    // Tự động detect pose cho ảnh người
+                    detectPoseInUploadedImage(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Xử lý upload ảnh quần áo
+         */
+        function handleClothingImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File quá lớn! Vui lòng chọn ảnh dưới 5MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedClothingImg = img;
+                    displayUploadedImage('uploadedClothingImage', 'clothingUploadContent', img);
+                    checkUploadComplete();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Hiển thị ảnh đã upload
+         */
+        function displayUploadedImage(imgId, contentId, imgElement) {
+            const imgEl = document.getElementById(imgId);
+            const contentEl = document.getElementById(contentId);
+            
+            imgEl.src = imgElement.src;
+            imgEl.style.display = 'block';
+            contentEl.style.display = 'none';
+        }
+
+        /**
+         * Kiểm tra xem đã upload đủ ảnh chưa
+         */
+        function checkUploadComplete() {
+            const processBtn = document.getElementById('processBtn');
+            if (uploadedPersonImg && uploadedClothingImg) {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="ri-magic-line me-1"></i>Thử Đồ';
+            } else {
+                processBtn.disabled = true;
+                const missing = [];
+                if (!uploadedPersonImg) missing.push('ảnh người');
+                if (!uploadedClothingImg) missing.push('ảnh quần áo');
+                processBtn.innerHTML = `<i class="ri-magic-line me-1"></i>Cần ${missing.join(' và ')}`;
+            }
+        }
+
+        /**
+         * Detect pose trong ảnh đã upload
+         */
+        async function detectPoseInUploadedImage(img) {
+            if (typeof Pose === 'undefined') {
+                console.warn('MediaPipe Pose không khả dụng cho ảnh upload');
+                return;
+            }
+
+            try {
+                // Tạo canvas tạm để xử lý ảnh
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                tempCtx.drawImage(img, 0, 0);
+
+                // Khởi tạo pose detector cho ảnh
+                const photoPose = new Pose({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+                    }
+                });
+
+                photoPose.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: false,
+                    enableSegmentation: false,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                photoPose.onResults((results) => {
+                    personPose = results.poseLandmarks;
+                    console.log('Đã detect pose trong ảnh:', personPose ? 'Thành công' : 'Không tìm thấy');
+                });
+
+                await photoPose.send({ image: tempCanvas });
+                photoPose.close();
+
+            } catch (error) {
+                console.error('Lỗi detect pose:', error);
+            }
+        }
+
+        /**
+         * Xử lý ảnh đã upload và thử đồ
+         */
+        function processUploadedImages() {
+            if (!uploadedPersonImg || !uploadedClothingImg) {
+                alert('Vui lòng upload đủ ảnh người và quần áo!');
+                return;
+            }
+
+            // Setup canvas
+            const maxWidth = 800;
+            const maxHeight = 600;
+            
+            // Tính toán kích thước canvas dựa trên ảnh người
+            let canvasWidth = uploadedPersonImg.width;
+            let canvasHeight = uploadedPersonImg.height;
+            
+            if (canvasWidth > maxWidth || canvasHeight > maxHeight) {
+                const ratio = Math.min(maxWidth / canvasWidth, maxHeight / canvasHeight);
+                canvasWidth *= ratio;
+                canvasHeight *= ratio;
+            }
+
+            photoCanvas.width = canvasWidth;
+            photoCanvas.height = canvasHeight;
+            photoCanvas.style.display = 'block';
+            
+            photoOverlayCanvas.width = canvasWidth;
+            photoOverlayCanvas.height = canvasHeight;
+            photoOverlayCanvas.style.display = 'block';
+            photoOverlayCanvas.style.position = 'absolute';
+            photoOverlayCanvas.style.top = '0';
+            photoOverlayCanvas.style.left = '0';
+
+            // Vẽ ảnh người
+            photoCtx.drawImage(uploadedPersonImg, 0, 0, canvasWidth, canvasHeight);
+
+            // Áp dụng quần áo lên người
+            applyClothingToPhoto();
+
+            // Hiển thị nút download
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+        }
+
+        /**
+         * Áp dụng quần áo lên ảnh người
+         */
+        function applyClothingToPhoto() {
+            if (!personPose || !uploadedClothingImg) {
+                // Nếu không có pose, áp dụng theo cách đơn giản
+                applyClothingSimple();
+                return;
+            }
+
+            // Clear overlay canvas
+            photoOverlayCtx.clearRect(0, 0, photoOverlayCanvas.width, photoOverlayCanvas.height);
+
+            // Tính toán vị trí dựa trên pose landmarks
+            const landmarks = personPose;
+            const canvasWidth = photoOverlayCanvas.width;
+            const canvasHeight = photoOverlayCanvas.height;
+
+            // Lấy các điểm quan trọng (vai, hông)
+            const leftShoulder = landmarks[11];
+            const rightShoulder = landmarks[12];
+            const leftHip = landmarks[23];
+            const rightHip = landmarks[24];
+
+            if (leftShoulder && rightShoulder && leftHip && rightHip) {
+                // Tính toán bounding box cho quần áo
+                const shoulderWidth = Math.abs(rightShoulder.x - leftShoulder.x) * canvasWidth;
+                const bodyHeight = Math.abs(leftHip.y - leftShoulder.y) * canvasHeight;
+                
+                const centerX = ((leftShoulder.x + rightShoulder.x) / 2) * canvasWidth;
+                const topY = leftShoulder.y * canvasHeight;
+                
+                // Vẽ quần áo với kích thước phù hợp
+                const clothingWidth = shoulderWidth * 1.3; // Rộng hơn vai một chút
+                const clothingHeight = bodyHeight * 0.8; // Chiều cao phù hợp
+                
+                const clothingX = centerX - clothingWidth / 2;
+                const clothingY = topY;
+
+                // Áp dụng hiệu ứng blend để quần áo trông tự nhiên
+                photoOverlayCtx.globalCompositeOperation = 'multiply';
+                photoOverlayCtx.globalAlpha = 0.8;
+                
+                photoOverlayCtx.drawImage(
+                    uploadedClothingImg,
+                    clothingX, clothingY,
+                    clothingWidth, clothingHeight
+                );
+                
+                // Reset blend mode
+                photoOverlayCtx.globalCompositeOperation = 'source-over';
+                photoOverlayCtx.globalAlpha = 1.0;
+            } else {
+                applyClothingSimple();
+            }
+        }
+
+        /**
+         * Áp dụng quần áo theo cách đơn giản (không có pose detection)
+         */
+        function applyClothingSimple() {
+            const canvasWidth = photoOverlayCanvas.width;
+            const canvasHeight = photoOverlayCanvas.height;
+            
+            // Đặt quần áo ở giữa phần trên của ảnh
+            const clothingWidth = canvasWidth * 0.4;
+            const clothingHeight = canvasHeight * 0.3;
+            const clothingX = (canvasWidth - clothingWidth) / 2;
+            const clothingY = canvasHeight * 0.15;
+
+            photoOverlayCtx.globalAlpha = 0.7;
+            photoOverlayCtx.drawImage(
+                uploadedClothingImg,
+                clothingX, clothingY,
+                clothingWidth, clothingHeight
+            );
+            photoOverlayCtx.globalAlpha = 1.0;
+        }
+
+        /**
+         * Download kết quả
+         */
+        function downloadResult() {
+            if (!photoCanvas) {
+                alert('Chưa có ảnh để tải xuống!');
+                return;
+            }
+
+            // Tạo canvas tổng hợp
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = photoCanvas.width;
+            finalCanvas.height = photoCanvas.height;
+            const finalCtx = finalCanvas.getContext('2d');
+
+            // Vẽ ảnh gốc
+            finalCtx.drawImage(photoCanvas, 0, 0);
+            
+            // Vẽ overlay
+            if (photoOverlayCanvas) {
+                finalCtx.drawImage(photoOverlayCanvas, 0, 0);
+            }
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `lookai-virtual-tryOn-${Date.now()}.png`;
+            link.href = finalCanvas.toDataURL('image/png', 0.9);
+            link.click();
+        }
+
+        /**
+         * Reset upload mode
+         */
+        function resetUpload() {
+            uploadedPersonImg = null;
+            uploadedClothingImg = null;
+            personPose = null;
+
+            // Reset UI
+            document.getElementById('uploadedPersonImage').style.display = 'none';
+            document.getElementById('uploadedClothingImage').style.display = 'none';
+            document.getElementById('personUploadContent').style.display = 'block';
+            document.getElementById('clothingUploadContent').style.display = 'block';
+            document.getElementById('photoCanvas').style.display = 'none';
+            document.getElementById('photoOverlayCanvas').style.display = 'none';
+            document.getElementById('downloadBtn').style.display = 'none';
+
+            // Reset file inputs
+            document.getElementById('personImageInput').value = '';
+            document.getElementById('clothingImageInput').value = '';
+
+            checkUploadComplete();
+        }
+
+        /**
+         * Chuyển đổi giữa camera và upload mode
+         */
+        function switchARMode() {
+            const selectedMode = document.querySelector('input[name="arMode"]:checked').value;
+            const cameraControls = document.getElementById('cameraControls');
+            const uploadContainer = document.getElementById('uploadModeContainer');
+            const arVideo = document.getElementById('arVideo');
+            const arCanvas = document.getElementById('arCanvas');
+            const arInitialState = document.getElementById('arInitialState');
+
+            if (selectedMode === 'camera') {
+                cameraControls.style.display = 'flex';
+                uploadContainer.style.display = 'none';
+                arInitialState.style.display = 'block';
+                // Reset camera nếu cần
+                if (isARActive) {
+                    stopARCamera();
+                }
+            } else {
+                cameraControls.style.display = 'none';
+                uploadContainer.style.display = 'block';
+                arInitialState.style.display = 'none';
+                arVideo.style.display = 'none';
+                arCanvas.style.display = 'none';
+                // Stop camera nếu đang chạy
+                if (isARActive) {
+                    stopARCamera();
+                }
+            }
+        }
+
+        // Thêm AR clothing selection vào UI
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo upload mode
+            initializeUploadMode();
+            
+            // Thêm nút chọn AR clothing cho camera mode
+            const arClothingSelector = document.createElement('div');
+            arClothingSelector.innerHTML = `
+                <div class="mt-3" id="arClothingSelector">
+                    <h6>Chọn quần áo AR (Camera mode):</h6>
+                    <div class="btn-group-vertical d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="selectARClothing('shirt')">
+                            <i class="ri-shirt-line me-1"></i>Áo sơ mi
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="selectARClothing('tshirt')">
+                            <i class="ri-t-shirt-line me-1"></i>Áo thun
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="selectARClothing('dress')">
+                            <i class="ri-women-line me-1"></i>Váy
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="selectARClothing('pants')">
+                            <i class="ri-pantone-line me-1"></i>Quần dài
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Thêm vào modal body
+            const modalBody = document.querySelector('#arModal .modal-body');
+            if (modalBody) {
+                modalBody.appendChild(arClothingSelector);
+            }
+        });
+
+    </script>
+</body>
+</html>

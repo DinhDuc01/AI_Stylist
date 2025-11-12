@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Smart Weather Outfit - AI Gợi Ý Thông Minh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        .api-setup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .weather-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            border-radius: 20px;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(116, 185, 255, 0.3);
+        }
+        .outfit-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .outfit-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .ai-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .wardrobe-manager {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="bg-primary text-white py-4">
+        <div class="container">
+            <h1 class="mb-0">
+                <i class="ri-robot-line me-2"></i>
+                Smart Weather Outfit - AI Gợi Ý Thông Minh
+            </h1>
+            <p class="mb-0">Tích hợp API thời tiết thực + AI gợi ý từ tủ đồ cá nhân</p>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- API Setup Guide -->
+        
+        </div>
+
+        <!-- Location & Activity Selector -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow rounded">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-2">
+                                    <i class="ri-map-pin-line text-primary me-2"></i>
+                                    Vị Trí
+                                </h6>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cityInput" value="Hanoi" placeholder="Nhập tên thành phố...">
+                                    <button class="btn btn-primary" onclick="updateSmartWeather()">
+                                        <i class="ri-search-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-2">Hoạt động:</h6>
+                                <select class="form-select" id="activitySelect">
+                                    <option value="work">Đi làm</option>
+                                    <option value="casual">Dạo phố</option>
+                                    <option value="sport">Thể thao</option>
+                                    <option value="date">Hẹn hò</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-2">Chế độ AI:</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="aiModeSwitch" checked>
+                                    <label class="form-check-label" for="aiModeSwitch">
+                                        Sử dụng AI thông minh
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather & Outfit Display -->
+        <div class="row mt-4">
+            <!-- Current Weather -->
+            <div class="col-lg-4">
+                <div class="weather-card" id="weatherCard">
+                    <div class="weather-icon" id="weatherIconContainer">
+                        <i class="ri-sun-line" style="font-size: 4rem;"></i>
+                    </div>
+                    <div class="temperature" id="temperature" style="font-size: 3rem; font-weight: bold;">--°C</div>
+                    <h5 id="weatherDescription">Đang tải...</h5>
+                    <p id="location">--</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-4 text-center">
+                            <i class="ri-drop-line"></i>
+                            <div><small>Độ ẩm</small></div>
+                            <div id="humidity">--%</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <i class="ri-windy-line"></i>
+                            <div><small>Gió</small></div>
+                            <div id="windSpeed">-- km/h</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <i class="ri-eye-line"></i>
+                            <div><small>Tầm nhìn</small></div>
+                            <div id="visibility">-- km</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Outfit Suggestion -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow rounded">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">
+                                <i class="ri-robot-line text-primary me-2"></i>
+                                Gợi Ý AI Từ Tủ Đồ
+                            </h5>
+                            <span class="ai-badge" id="aiBadge">AI Powered</span>
+                        </div>
+                        
+                        <div id="outfitSuggestion">
+                            <div class="text-center py-4">
+                                <i class="ri-loader-4-line" style="font-size: 2rem; animation: spin 1s linear infinite;"></i>
+                                <p class="mt-2">Đang phân tích thời tiết và tủ đồ...</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary me-2" onclick="applyOutfit()">
+                                <i class="ri-check-line me-1"></i>Áp dụng outfit
+                            </button>
+                            <button class="btn btn-outline-primary me-2" onclick="getNewSuggestion()">
+                                <i class="ri-refresh-line me-1"></i>Gợi ý khác
+                            </button>
+                            <button class="btn btn-outline-success" onclick="rateSuggestion()">
+                                <i class="ri-star-line me-1"></i>Đánh giá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Wardrobe Manager -->
+        <div class="wardrobe-manager">
+            <h5 class="mb-3">
+                <i class="ri-shirt-line text-primary me-2"></i>
+                Quản Lý Tủ Đồ Cá Nhân
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="wardrobeList">
+                        <!-- Danh sách quần áo sẽ được load bằng JS -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Thêm Quần Áo Mới</h6>
+                            <div class="mb-2">
+                                <select class="form-select form-select-sm" id="newItemType">
+                                    <option value="Áo">Áo</option>
+                                    <option value="Quần">Quần</option>
+                                    <option value="Váy">Váy</option>
+                                    <option value="Giày">Giày</option>
+                                    <option value="Phụ kiện">Phụ kiện</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="newItemName" placeholder="Tên món đồ...">
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="newItemColor" placeholder="Màu sắc...">
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control form-control-sm" id="newItemMaterial" placeholder="Chất liệu...">
+                            </div>
+                            <button class="btn btn-sm btn-primary w-100" onclick="addNewItem()">
+                                <i class="ri-add-line me-1"></i>Thêm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Status -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Trạng Thái API</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="status-dot bg-danger me-2" id="weatherApiStatus" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                                    <span>Weather API: <span id="weatherApiText">Chưa kết nối</span></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="status-dot bg-danger me-2" id="aiApiStatus" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                                    <span>AI API: <span id="aiApiText">Chưa kết nối</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // API Keys
+        const WEATHER_API_KEY = 'd1ca006774aa4d9491d21940250611';
+        const GEMINI_API_KEY = 'AIzaSyBYgj63cniNH6OyRmGifLNo7peqgU_L6k8';
+        
+        let currentSuggestion = null;
+        let personalWardrobe = getDefaultWardrobe();
+
+        // Khởi tạo khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWardrobe();
+            updateSmartWeather();
+            
+            // Auto refresh mỗi 10 phút
+            setInterval(updateSmartWeather, 10 * 60 * 1000);
+        });
+
+        // Cập nhật thời tiết và gợi ý thông minh
+        async function updateSmartWeather() {
+            const city = document.getElementById('cityInput').value || 'Hanoi';
+            const activity = document.getElementById('activitySelect').value;
+            const useAI = document.getElementById('aiModeSwitch').checked;
+            
+            // Hiển thị loading
+            document.getElementById('weatherCard').classList.add('loading');
+            document.getElementById('outfitSuggestion').innerHTML = `
+                <div class="text-center py-4">
+                    <i class="ri-loader-4-line" style="font-size: 2rem; animation: spin 1s linear infinite;"></i>
+                    <p class="mt-2">Đang ${useAI ? 'phân tích AI' : 'xử lý'}...</p>
+                </div>
+            `;
+
+            try {
+                // 1. Lấy thời tiết thực
+                const weather = await getRealWeather(city);
+                updateWeatherUI(weather);
+                updateApiStatus('weather', true);
+                
+                // 2. Lấy gợi ý outfit
+                let suggestion;
+                if (useAI) {
+                    try {
+                        suggestion = await getAIOutfitSuggestion(weather, activity);
+                        updateApiStatus('ai', true);
+                        document.getElementById('aiBadge').textContent = 'AI Powered';
+                    } catch (error) {
+                        console.log('AI API không khả dụng, dùng rules fallback');
+                        suggestion = getRuleBasedSuggestion(weather, activity);
+                        updateApiStatus('ai', false);
+                        document.getElementById('aiBadge').textContent = 'Rules Based';
+                    }
+                } else {
+                    suggestion = getRuleBasedSuggestion(weather, activity);
+                    document.getElementById('aiBadge').textContent = 'Rules Based';
+                }
+                
+                currentSuggestion = suggestion;
+                updateOutfitUI(suggestion);
+                
+            } catch (error) {
+                console.error('Lỗi cập nhật:', error);
+                updateApiStatus('weather', false);
+                showError('Không thể lấy dữ liệu thời tiết. Vui lòng kiểm tra kết nối internet.');
+            } finally {
+                document.getElementById('weatherCard').classList.remove('loading');
+            }
+        }
+
+        // Lấy thời tiết thực
+        async function getRealWeather(city = 'Hanoi') {
+            const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${city}&lang=vi`);
+            
+            if (!response.ok) {
+                throw new Error('Weather API error');
+            }
+            
+            const data = await response.json();
+            return {
+                temperature: data.current.temp_c,
+                condition: data.current.condition.text,
+                humidity: data.current.humidity,
+                windSpeed: data.current.wind_kph,
+                feelsLike: data.current.feelslike_c,
+                visibility: data.current.vis_km,
+                icon: data.current.condition.icon,
+                location: `${data.location.name}, ${data.location.country}`
+            };
+        }
+
+        // AI gợi ý outfit
+        async function getAIOutfitSuggestion(weather, activity) {
+            const prompt = `Thời tiết hiện tại: ${weather.temperature}°C, ${weather.condition}. 
+Hoạt động: ${activity}. 
+Hãy gợi ý outfit phù hợp bằng tiếng Việt, ngắn gọn.`;
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Gemini API error');
+            }
+
+            const data = await response.json();
+            const aiText = data.candidates[0].content.parts[0].text;
+            
+            return {
+                top: 'Áo được AI gợi ý',
+                bottom: 'Quần được AI gợi ý', 
+                shoes: 'Giày được AI gợi ý',
+                accessories: [],
+                reason: aiText,
+                comfort_score: 9
+            };
+        }
+
+        // Rules-based suggestion
+        function getRuleBasedSuggestion(weather, activity) {
+            const temp = weather.temperature;
+            let suggestion = {
+                top: '',
+                bottom: '',
+                shoes: '',
+                accessories: [],
+                reason: '',
+                comfort_score: 8
+            };
+
+            if (temp < 15) {
+                suggestion.top = 'Áo khoác dày, áo len';
+                suggestion.bottom = 'Quần jeans dày';
+                suggestion.shoes = 'Giày bốt';
+                suggestion.accessories = ['Khăn quàng cổ', 'Mũ len'];
+                suggestion.reason = 'Thời tiết lạnh, cần giữ ấm';
+            } else if (temp < 25) {
+                suggestion.top = 'Áo hoodie hoặc cardigan';
+                suggestion.bottom = 'Quần jeans';
+                suggestion.shoes = 'Sneaker';
+                suggestion.accessories = ['Áo khoác nhẹ'];
+                suggestion.reason = 'Thời tiết mát mẻ, thoải mái';
+            } else {
+                suggestion.top = 'Áo thun cotton';
+                suggestion.bottom = 'Quần short';
+                suggestion.shoes = 'Sandal';
+                suggestion.accessories = ['Mũ chống nắng'];
+                suggestion.reason = 'Thời tiết nóng, cần thoáng mát';
+            }
+
+            if (weather.condition.toLowerCase().includes('mưa')) {
+                suggestion.accessories.push('Áo mưa', 'Ô');
+                suggestion.reason += '. Có mưa nên cần đồ chống thấm.';
+            }
+
+            return suggestion;
+        }
+
+        // Cập nhật UI thời tiết
+        function updateWeatherUI(weather) {
+            document.getElementById('temperature').textContent = `${weather.temperature}°C`;
+            document.getElementById('weatherDescription').textContent = weather.condition;
+            document.getElementById('location').textContent = weather.location;
+            document.getElementById('humidity').textContent = `${weather.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${weather.windSpeed} km/h`;
+            document.getElementById('visibility').textContent = `${weather.visibility} km`;
+            
+            // Cập nhật icon
+            const iconContainer = document.getElementById('weatherIconContainer');
+            if (weather.icon) {
+                iconContainer.innerHTML = `<img src="https:${weather.icon}" alt="${weather.condition}" style="width: 64px; height: 64px;">`;
+            }
+        }
+
+        // Cập nhật UI gợi ý outfit
+        function updateOutfitUI(suggestion) {
+            const container = document.getElementById('outfitSuggestion');
+            
+            container.innerHTML = `
+                <div class="outfit-item">
+                    <i class="ri-shirt-line text-primary me-3" style="font-size: 1.5rem;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${suggestion.top}</h6>
+                        <small class="text-muted">Áo phù hợp với thời tiết</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success">Phù hợp ${suggestion.comfort_score}/10</span>
+                    </div>
+                </div>
+                
+                <div class="outfit-item">
+                    <i class="ri-user-line text-primary me-3" style="font-size: 1.5rem;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${suggestion.bottom}</h6>
+                        <small class="text-muted">Quần/váy phù hợp</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success">Thoải mái</span>
+                    </div>
+                </div>
+                
+                <div class="outfit-item">
+                    <i class="ri-footprint-line text-primary me-3" style="font-size: 1.5rem;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${suggestion.shoes}</h6>
+                        <small class="text-muted">Giày dép phù hợp</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-info">Phù hợp</span>
+                    </div>
+                </div>
+                
+                ${suggestion.accessories && suggestion.accessories.length > 0 ? `
+                <div class="outfit-item">
+                    <i class="ri-handbag-line text-primary me-3" style="font-size: 1.5rem;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">Phụ kiện</h6>
+                        <small class="text-muted">${suggestion.accessories.join(', ')}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-warning">Khuyên dùng</span>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <small><strong>💡 Lý do:</strong> ${suggestion.reason}</small>
+                </div>
+            `;
+        }
+
+        // Quản lý tủ đồ
+        function loadWardrobe() {
+            const container = document.getElementById('wardrobeList');
+            
+            container.innerHTML = personalWardrobe.map(item => `
+                <div class="d-flex align-items-center justify-content-between p-2 border-bottom">
+                    <div>
+                        <strong>${item.type}:</strong> ${item.name} 
+                        <span class="text-muted">(${item.color})</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${item.id || Date.now()})">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addNewItem() {
+            const type = document.getElementById('newItemType').value;
+            const name = document.getElementById('newItemName').value;
+            const color = document.getElementById('newItemColor').value;
+            const material = document.getElementById('newItemMaterial').value;
+            
+            if (!name || !color) {
+                alert('Vui lòng nhập tên và màu sắc!');
+                return;
+            }
+            
+            personalWardrobe.push({
+                id: Date.now(),
+                type, name, color, material,
+                addedDate: new Date().toISOString()
+            });
+            
+            localStorage.setItem('personalWardrobe', JSON.stringify(personalWardrobe));
+            loadWardrobe();
+            
+            // Clear form
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemColor').value = '';
+            document.getElementById('newItemMaterial').value = '';
+        }
+
+        function getDefaultWardrobe() {
+            const saved = localStorage.getItem('personalWardrobe');
+            if (saved) return JSON.parse(saved);
+            
+            return [
+                { id: 1, type: 'Áo', name: 'Áo sơ mi trắng', color: 'Trắng', material: 'Cotton' },
+                { id: 2, type: 'Áo', name: 'Áo thun đen', color: 'Đen', material: 'Cotton' },
+                { id: 3, type: 'Áo', name: 'Áo hoodie xám', color: 'Xám', material: 'Nỉ' },
+                { id: 4, type: 'Quần', name: 'Quần jeans xanh', color: 'Xanh denim', material: 'Denim' },
+                { id: 5, type: 'Quần', name: 'Quần âu đen', color: 'Đen', material: 'Polyester' },
+                { id: 6, type: 'Giày', name: 'Sneaker trắng', color: 'Trắng', material: 'Da tổng hợp' },
+                { id: 7, type: 'Giày', name: 'Giày da nâu', color: 'Nâu', material: 'Da thật' }
+            ];
+        }
+
+        // Các hàm tiện ích
+        function updateApiStatus(type, isConnected) {
+            const statusDot = document.getElementById(`${type}ApiStatus`);
+            const statusText = document.getElementById(`${type}ApiText`);
+            
+            if (isConnected) {
+                statusDot.className = 'status-dot bg-success me-2';
+                statusText.textContent = 'Kết nối thành công';
+            } else {
+                statusDot.className = 'status-dot bg-danger me-2';
+                statusText.textContent = 'Lỗi kết nối';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('outfitSuggestion').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="ri-error-warning-line me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function applyOutfit() {
+            if (currentSuggestion) {
+                alert('✅ Đã áp dụng gợi ý! Outfit đã được lưu vào lịch sử.');
+                // Có thể lưu vào calendar hoặc history
+            }
+        }
+
+        function getNewSuggestion() {
+            updateSmartWeather();
+        }
+
+        function rateSuggestion() {
+            if (!currentSuggestion) return;
+            
+            const rating = prompt('Đánh giá gợi ý này (1-5 sao):');
+            if (rating && rating >= 1 && rating <= 5) {
+                // Lưu feedback
+                const feedback = {
+                    timestamp: Date.now(),
+                    suggestion: currentSuggestion,
+                    rating: parseInt(rating)
+                };
+                
+                let feedbackHistory = JSON.parse(localStorage.getItem('outfitFeedback') || '[]');
+                feedbackHistory.push(feedback);
+                localStorage.setItem('outfitFeedback', JSON.stringify(feedbackHistory));
+                
+                alert(`Cảm ơn bạn đã đánh giá ${rating} sao! AI sẽ học hỏi để cải thiện.`);
+            }
+        }
+
+        // CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

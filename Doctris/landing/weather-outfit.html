@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Phối Đồ Theo Thời Tiết - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gợi ý trang phục phù hợp với thời tiết hàng ngày" />
+    <meta name="keywords" content="Thời tiết, Phối đồ, Dự báo thời tiết, Trang phục theo thời tiết" />
+    <meta name="author" content="LookAI" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="../assets/images/favicon.ico.png">
+    <!-- Bootstrap -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons -->
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <!-- Css -->
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        .weather-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            border-radius: 20px;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(116, 185, 255, 0.3);
+        }
+        .weather-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .temperature {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .weather-details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .weather-detail {
+            text-align: center;
+        }
+        .forecast-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .forecast-card:hover {
+            transform: translateY(-5px);
+        }
+        .outfit-recommendation {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .outfit-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .outfit-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .outfit-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        .weather-alert {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .location-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .activity-selector {
+            margin: 20px 0;
+        }
+        .activity-btn {
+            margin: 5px;
+            border-radius: 20px;
+        }
+        .comfort-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .comfort-level {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+        .comfort-perfect { background: #00b894; }
+        .comfort-good { background: #fdcb6e; }
+        .comfort-poor { background: #e17055; }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar Start -->
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+            
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <ul class="dropdowns list-inline mb-0">
+                <li class="list-inline-item mb-0 ms-1">
+                    <a href="index.html" class="btn btn-pills btn-soft-primary">
+                        <i class="uil uil-home"></i> Trang chủ
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-cloud-windy-line text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Phối Đồ Theo Thời Tiết</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Luôn mặc đẹp và phù hợp với điều kiện thời tiết thực tế</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <!-- Location Selector -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="location-selector">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">
+                                    <i class="ri-map-pin-line text-primary me-2"></i>
+                                    Chọn Vị Trí
+                                </h5>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Nhập tên thành phố..." id="locationInput" value="Hà Nội">
+                                    <button class="btn btn-primary" onclick="updateWeather()">
+                                        <i class="ri-search-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="activity-selector">
+                                    <h6 class="mb-2">Hoạt động hôm nay:</h6>
+                                    <button class="btn btn-outline-primary activity-btn active" data-activity="work">Đi làm</button>
+                                    <button class="btn btn-outline-primary activity-btn" data-activity="casual">Dạo phố</button>
+                                    <button class="btn btn-outline-primary activity-btn" data-activity="sport">Thể thao</button>
+                                    <button class="btn btn-outline-primary activity-btn" data-activity="date">Hẹn hò</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Weather -->
+            <div class="row mb-4">
+                <div class="col-lg-4">
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="ri-mist-line" id="weatherIcon"></i>
+                        </div>
+                        <div class="temperature" id="temperature">12°C</div>
+                        <h5 id="weatherDescription">Sương mù nhẹ</h5>
+                        <p id="location">Hà Nội, Việt Nam</p>
+                        
+                        <div class="weather-details">
+                            <div class="weather-detail">
+                                <i class="ri-drop-line"></i>
+                                <div>
+                                    <small>Độ ẩm</small>
+                                    <div id="humidity">85%</div>
+                                </div>
+                            </div>
+                            <div class="weather-detail">
+                                <i class="ri-windy-line"></i>
+                                <div>
+                                    <small>Gió</small>
+                                    <div id="windSpeed">8 km/h</div>
+                                </div>
+                            </div>
+                            <div class="weather-detail">
+                                <i class="ri-eye-line"></i>
+                                <div>
+                                    <small>Tầm nhìn</small>
+                                    <div id="visibility">5 km</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Alert -->
+                <div class="col-lg-8">
+                    <div class="weather-alert">
+                        <h6 class="mb-2">
+                            <i class="ri-alert-line me-2"></i>
+                            Cảnh Báo Thời Tiết
+                        </h6>
+                        <p class="mb-0">Nhiệt độ thấp và có sương mù, khuyến nghị mặc ấm và mang theo áo khoác. Cẩn thận khi tham gia giao thông.</p>
+                    </div>
+
+                    <!-- Outfit Recommendation -->
+                    <div class="outfit-recommendation">
+                        <h5 class="mb-3">
+                            <i class="ri-shirt-line text-primary me-2"></i>
+                            Gợi Ý Trang Phục Hôm Nay
+                        </h5>
+                        
+                        <div class="comfort-indicator">
+                            <span class="me-2">Mức độ thoải mái:</span>
+                            <div class="comfort-level comfort-perfect"></div>
+                            <div class="comfort-level comfort-perfect"></div>
+                            <div class="comfort-level comfort-perfect"></div>
+                            <div class="comfort-level comfort-good"></div>
+                            <div class="comfort-level comfort-poor"></div>
+                            <span class="ms-2 text-success">Rất tốt</span>
+                        </div>
+
+                        <div id="outfitItems">
+                            <div class="outfit-item">
+                                <img src="../assets/images/blog/01.jpg" alt="Áo len">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Áo len dày hoặc hoodie</h6>
+                                    <small class="text-muted">Giữ ấm, thoải mái</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success">Phù hợp 95%</span>
+                                </div>
+                            </div>
+
+                            <div class="outfit-item">
+                                <img src="../assets/images/blog/02.jpg" alt="Quần dài">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Quần jeans hoặc quần dài</h6>
+                                    <small class="text-muted">Chất liệu dày, giữ ấm</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success">Phù hợp 90%</span>
+                                </div>
+                            </div>
+
+                            <div class="outfit-item">
+                                <img src="../assets/images/blog/03.jpg" alt="Giày bốt">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Giày bốt hoặc sneaker cao cổ</h6>
+                                    <small class="text-muted">Giữ ấm chân, chống trượt</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success">Phù hợp 85%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary me-2" onclick="applyOutfit()">
+                                <i class="ri-check-line me-1"></i>Áp dụng outfit
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="getAlternatives()">
+                                <i class="ri-refresh-line me-1"></i>Gợi ý khác
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7-Day Forecast -->
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-4">
+                        <i class="ri-calendar-line text-primary me-2"></i>
+                        Dự Báo 7 Ngày Tới
+                    </h5>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Hôm nay</h6>
+                        <i class="ri-mist-line text-secondary display-6"></i>
+                        <div class="mt-2">
+                            <strong>12°C / 8°C</strong>
+                        </div>
+                        <small class="text-muted">Sương mù nhẹ</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo len + Quần dài
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 2</h6>
+                        <i class="ri-cloudy-line text-secondary display-6"></i>
+                        <div class="mt-2">
+                            <strong>15°C / 10°C</strong>
+                        </div>
+                        <small class="text-muted">Nhiều mây</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo khoác + Jeans
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 3</h6>
+                        <i class="ri-rainy-line text-info display-6"></i>
+                        <div class="mt-2">
+                            <strong>13°C / 9°C</strong>
+                        </div>
+                        <small class="text-muted">Mưa nhẹ</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo mưa + Giày bốt
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 4</h6>
+                        <i class="ri-snow-line text-info display-6"></i>
+                        <div class="mt-2">
+                            <strong>8°C / 5°C</strong>
+                        </div>
+                        <small class="text-muted">Lạnh, có thể có sương giá</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo phông + Giăng tay
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 5</h6>
+                        <i class="ri-sun-cloudy-line text-warning display-6"></i>
+                        <div class="mt-2">
+                            <strong>16°C / 11°C</strong>
+                        </div>
+                        <small class="text-muted">Nắng ít mây</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo len mỏng + Quần dài
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 6</h6>
+                        <i class="ri-cloudy-2-line text-secondary display-6"></i>
+                        <div class="mt-2">
+                            <strong>14°C / 9°C</strong>
+                        </div>
+                        <small class="text-muted">Âm u, lạnh</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Hoodie + Quần jeans
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Thứ 7</h6>
+                        <i class="ri-mist-line text-secondary display-6"></i>
+                        <div class="mt-2">
+                            <strong>11°C / 7°C</strong>
+                        </div>
+                        <small class="text-muted">Sương mù dày</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo khoác dày + Khăn quàng
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="forecast-card">
+                        <h6>Chủ nhật</h6>
+                        <i class="ri-sun-cloudy-line text-warning display-6"></i>
+                        <div class="mt-2">
+                            <strong>17°C / 12°C</strong>
+                        </div>
+                        <small class="text-muted">Nắng nhẹ, ấm hơn</small>
+                        <div class="mt-3">
+                            <small class="text-primary">
+                                <i class="ri-shirt-line me-1"></i>Áo cardigan + Quần dài
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Tips -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow rounded">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">
+                                <i class="ri-lightbulb-line text-primary me-2"></i>
+                                Mẹo Phối Đồ Theo Thời Tiết
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex">
+                                        <i class="ri-snow-line text-info me-3 mt-1"></i>
+                                        <div>
+                                            <h6>Ngày lạnh (<15°C)</h6>
+                                            <p class="text-muted small mb-0">Phối nhiều lớp, chọn vải giữ ấm như len, nỉ. Đừng quên mũ, khăn quàng cổ!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex">
+                                        <i class="ri-rainy-line text-info me-3 mt-1"></i>
+                                        <div>
+                                            <h6>Ngày mưa</h6>
+                                            <p class="text-muted small mb-0">Áo khoác chống nước, giày có đế chống trượt. Tránh vải dễ thấm nước.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex">
+                                        <i class="ri-mist-line text-secondary me-3 mt-1"></i>
+                                        <div>
+                                            <h6>Ngày có sương mù</h6>
+                                            <p class="text-muted small mb-0">Mặc áo khoác có mũ trùm, giày chống trượt. Cẩn thận khi di chuyển.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <a href="#" onclick="topFunction()" id="back-to-top" class="back-to-top fs-5"><i data-feather="arrow-up" class="fea icon-sm icons align-middle"></i></a>
+
+    <!-- Javascript -->
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        let currentActivity = 'work';
+
+        // Activity selector
+        document.querySelectorAll('.activity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentActivity = this.getAttribute('data-activity');
+                updateOutfitRecommendation();
+            });
+        });
+
+        function updateWeather() {
+            const location = document.getElementById('locationInput').value;
+            
+            // Simulate weather API call
+            console.log('Updating weather for:', location);
+            
+            // Update location display
+            document.getElementById('location').textContent = location + ', Việt Nam';
+            
+            // Update weather for winter in Hanoi
+            if (location.toLowerCase().includes('hà nội') || location.toLowerCase().includes('hanoi')) {
+                document.getElementById('temperature').textContent = '12°C';
+                document.getElementById('weatherDescription').textContent = 'Sương mù nhẹ';
+                document.getElementById('weatherIcon').className = 'ri-mist-line';
+            }
+            
+            // Simulate loading
+            const weatherCard = document.querySelector('.weather-card');
+            weatherCard.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                weatherCard.style.opacity = '1';
+                updateOutfitRecommendation();
+            }, 1000);
+        }
+
+        function updateOutfitRecommendation() {
+            const outfitData = {
+                work: {
+                    items: [
+                        { name: 'Áo len dày hoặc hoodie', desc: 'Giữ ấm, thoải mái', match: 95 },
+                        { name: 'Quần jeans hoặc quần dài', desc: 'Chất liệu dày, giữ ấm', match: 90 },
+                        { name: 'Giày bốt hoặc sneaker cao cổ', desc: 'Giữ ấm chân, chống trượt', match: 85 }
+                    ]
+                },
+                casual: {
+                    items: [
+                        { name: 'Áo khoác hoodie', desc: 'Thoải mái, giữ ấm', match: 95 },
+                        { name: 'Quần jeans dày', desc: 'Bền bỉ, giữ ấm', match: 90 },
+                        { name: 'Giày sneaker cao cổ', desc: 'Thoải mái, giữ ấm', match: 88 }
+                    ]
+                },
+                sport: {
+                    items: [
+                        { name: 'Áo thể thao dày tay', desc: 'Giữ ấm, thấm hút mồ hôi', match: 92 },
+                        { name: 'Quần thể thao dài', desc: 'Linh hoạt, giữ ấm', match: 90 },
+                        { name: 'Giày chạy bộ mùa đông', desc: 'Chống trượt, giữ ấm', match: 88 }
+                    ]
+                },
+                date: {
+                    items: [
+                        { name: 'Áo cardigan hoặc áo khoác nhẹ', desc: 'Thanh lịch, giữ ấm', match: 90 },
+                        { name: 'Quần dài hoặc chân váy dài', desc: 'Duyên dáng, phù hợp mùa đông', match: 88 },
+                        { name: 'Giày bốt cao gót', desc: 'Thời trang, giữ ấm', match: 85 }
+                    ]
+                }
+            };
+
+            const currentOutfit = outfitData[currentActivity];
+            const outfitContainer = document.getElementById('outfitItems');
+            
+            outfitContainer.innerHTML = '';
+            
+            currentOutfit.items.forEach((item, index) => {
+                const matchClass = item.match >= 90 ? 'success' : item.match >= 80 ? 'warning' : 'danger';
+                
+                const itemHTML = `
+                    <div class="outfit-item">
+                        <img src="../assets/images/blog/0${index + 1}.jpg" alt="${item.name}">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${item.name}</h6>
+                            <small class="text-muted">${item.desc}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-${matchClass}">Phù hợp ${item.match}%</span>
+                        </div>
+                    </div>
+                `;
+                
+                outfitContainer.innerHTML += itemHTML;
+            });
+        }
+
+        function applyOutfit() {
+            alert('Đã áp dụng gợi ý trang phục! Outfit đã được lưu vào tủ đồ của bạn.');
+        }
+
+        function getAlternatives() {
+            // Simulate getting alternative recommendations for winter
+            const alternatives = [
+                'Áo len cổ lọ + Quần jeans',
+                'Áo khoác dà + Quần dài',
+                'Áo cardigan dày + Chân váy len'
+            ];
+            
+            const randomAlt = alternatives[Math.floor(Math.random() * alternatives.length)];
+            alert(`Gợi ý thay thế: ${randomAlt}`);
+        }
+
+        // Simulate real-time weather updates
+        setInterval(() => {
+            const temp = document.getElementById('temperature');
+            const currentTemp = parseInt(temp.textContent);
+            const newTemp = currentTemp + (Math.random() > 0.5 ? 1 : -1);
+            temp.textContent = newTemp + '°C';
+        }, 30000); // Update every 30 seconds
+
+        // Initialize
+        updateOutfitRecommendation();
+        
+        // Initialize feather icons
+        feather.replace();
+    </script>
+</body>
+</html>

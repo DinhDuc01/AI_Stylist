@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tủ Đồ Số - LookAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quản lý tủ đồ thông minh với AI" />
+    <meta name="author" content="LookAI" />
+    <link rel="shortcut icon" href="../assets/images/LookAILogo.png">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/css/remixicon.css" rel="stylesheet" type="text/css" />
+    <link href="https://unicons.iconscout.com/release/v3.0.6/css/line.css" rel="stylesheet">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css" id="theme-opt" />
+    <style>
+        .wardrobe-item {
+            transition: transform 0.3s ease;
+        }
+        .wardrobe-item:hover {
+            transform: translateY(-5px);
+        }
+        .category-filter {
+            margin-bottom: 30px;
+        }
+        .item-image {
+            height: 250px;
+            object-fit: cover;
+        }
+        .upload-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px dashed #dee2e6;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="navigation sticky">
+        <div class="container">
+            <div>
+                <a class="logo" href="index.html">
+                    <span class="logo-light-mode">
+                        <img src="../assets/images/LookAILogo.png" class="l-dark" height="80" alt="LookAI Logo">
+                        <img src="../assets/images/LookAILogo.png" class="l-light" height="80" alt="LookAI Logo">
+                    </span>
+                </a>
+            </div>
+
+            <div id="navigation">
+                <ul class="navigation-menu">
+                    <li><a href="index.html" class="sub-menu-item">Trang chủ</a></li>
+                    <li><a href="ai-stylist.html" class="sub-menu-item">AI Phối đồ</a></li>
+                    <li><a href="wardrobe.html" class="sub-menu-item">Tủ đồ số</a></li>
+                    <li><a href="virtual-fitting.html" class="sub-menu-item">Thử đồ ảo</a></li>
+                    <li><a href="departments.html" class="sub-menu-item">Lookbook</a></li>
+                    <li class="active"><a href="aboutus.html" class="sub-menu-item">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-extras">
+                <div class="menu-item">
+                    <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
+                        <div class="lines"><span></span><span></span><span></span></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="bg-half-170 d-table w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="bg-overlay bg-overlay-dark"></div>
+        <div class="container">
+            <div class="row mt-5 justify-content-center">
+                <div class="col-12">
+                    <div class="heading-title text-center">
+                        <i class="ri-shirt-fill text-white display-4 mb-3"></i>
+                        <h2 class="text-white title-dark mb-3">Tủ Đồ Số Của Bạn</h2>
+                        <p class="text-white-50 para-desc mx-auto mb-0">Quản lý, phân loại và tổ chức tủ quần áo thông minh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-10">
+                    <div class="card border-0 shadow rounded">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-4">
+                                <i class="ri-camera-fill text-primary me-2"></i>
+                                Thêm Quần Áo Mới
+                            </h5>
+                            <form id="addItemForm" class="upload-form">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="itemName" class="form-label">Tên món đồ <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="itemName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="itemImage" class="form-label">Ảnh đính kèm <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="itemImage" accept="image/*" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="itemCategory" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="itemCategory" required>
+                                            <option value="">Chọn...</option>
+                                            <option value="Áo">Áo</option>
+                                            <option value="Quần">Quần</option>
+                                            <option value="Váy">Váy</option>
+                                            <option value="Áo khoác">Áo khoác</option>
+                                            <option value="Giày dép">Giày dép</option>
+                                            <option value="Phụ kiện">Phụ kiện</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="itemColor" class="form-label">Màu sắc</label>
+                                        <input type="text" class="form-control" id="itemColor" placeholder="Vd: Xanh navy">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="itemPurpose" class="form-label">Mục đích</T/label>
+                                        <select class="form-select" id="itemPurpose">
+                                            <option value="Khác">Khác</option>
+                                            <option value="Công sở">Công sở</option>
+                                            <option value="Dạo phố">Dạo phố</option>
+                                            <option value="Hẹn hò">Hẹn hò</option>
+                                            <option value="Thể thao">Thể thao</option>
+                                            <option value="Tiệc tối">Tiệc tối</option>
+                                            <option value="Ở nhà">Ở nhà</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="itemStatus" class="form-label">Trạng thái</label>
+                                        <select class="form-select" id="itemStatus">
+                                            <option value="Sạch sẽ">Sạch sẽ</T>
+                                            <option value="Cần giặt">Cần giặt</option>
+                                            <option value="Đang giặt">Đang giặt</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="ri-add-line me-2"></i>Thêm vào tủ
+                                    </button>
+                                </div>
+                            </form>
+                            <div id="formMessage" class="text-center mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row category-filter">
+                <div class="col-12">
+                    <div class="text-center">
+                        <h5 class="mb-3">Lọc theo danh mục:</h5>
+                        <div id="filterButtons" class="btn-group flex-wrap" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-filter="all">
+                                <i class="ri-apps-2-line me-1"></i>Tất cả
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Áo">
+                                <i class="ri-t-shirt-line me-1"></i>Áo
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Quần">
+                                <i class="ri-user-line me-1"></i>Quần
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Váy">
+                                <i class="ri-women-line me-1"></i>Váy
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Áo khoác">
+                                <i class="ri-shirt-fill me-1"></i>Áo khoác
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Giày dép">
+                                <i class="ri-footprint-line me-1"></i>Giày dép
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="Phụ kiện">
+                                <i class="ri-handbag-line me-1"></i>Phụ kiện
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="wardrobeGrid">
+                <div class="col-12 text-center">
+                    <p>Đang tải tủ đồ của bạn...</p>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card border-0 shadow rounded">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-4">
+                                <i class="ri-bar-chart-box-line text-primary me-2"></i>
+                                Thống Kê Tủ Đồ
+                            </h5>
+                            <div class="row text-center">
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-primary mb-0" id="totalItems">0</h4>
+                                        <p class="text-muted mb-0">Tổng số món</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-info mb-0" id="topsCount">0</h4>
+                                        <p class="text-muted mb-0">Áo</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-success mb-0" id="bottomsCount">0</h4>
+                                        <p class="text-muted mb-0">Quần</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-warning mb-0" id="dressesCount">0</h4>
+                                        <p class="text-muted mb-0">Váy</pre>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-danger mb-0" id="shoesCount">0</h4>
+                                        <p class="text-muted mb-0">Giày dép</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3">
+                                    <div class="counter-box">
+                                        <h4 class="text-secondary mb-0" id="accessoriesCount">0</h4>
+                                        <p class="text-muted mb-0">Phụ kiện</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-6 mb-3 mx-auto">
+                                    <div class="counter-box">
+                                        <h4 class="text-dark mb-0" id="outerwearCount">0</h4>
+                                        <p class="text-muted mb-0">Áo khoác</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editItemModalLabel">Chỉnh Sửa Món Đồ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editItemForm">
+                        <input type="hidden" id="editItemId"> <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editItemName" class="form-label">Tên món đồ <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editItemName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editItemImage" class="form-label">Ảnh đính kèm (Để trống nếu không muốn đổi)</label>
+                                <input type="file" class="form-control" id="editItemImage" accept="image/*">
+                                <small>Ảnh hiện tại: <span id="editCurrentImage" class="text-muted"></span></small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="editItemCategory" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editItemCategory" required>
+                                    <option value="Áo">Áo</option>
+                                    <option value="Quần">Quần</option>
+                                    <option value="Váy">Váy</option>
+                                    <option value="Áo khoác">Áo khoác</option>
+                                    <option value="Giày dép">Giày dép</option>
+                                    <option value="Phụ kiện">Phụ kiện</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="editItemColor" class="form-label">Màu sắc</label>
+                                <input type="text" class="form-control" id="editItemColor" placeholder="Vd: Xanh navy">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="editItemPurpose" class="form-label">Mục đích</T/label>
+                                <select class="form-select" id="editItemPurpose">
+                                    <option value="Khác">Khác</option>
+                                    <option value="Công sở">Công sở</option>
+                                    <option value="Dạo phố">Dạo phố</option>
+                                    <option value="Hẹn hò">Hẹn hò</option>
+                                    <option value="Thể thao">Thể thao</option>
+                                    <option value="Tiệc tối">Tiệc tối</option>
+                                    <option value="Ở nhà">Ở nhà</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="editItemStatus" class="form-label">Trạng thái</label>
+                                <select class="form-select" id="editItemStatus">
+                                    <option value="Sạch sẽ">Sạch sẽ</T>
+                                    <option value="Cần giặt">Cần giặt</option>
+                                    <option value="Đang giặt">Đang giặt</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                    <div id="editFormMessage" class="text-center mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel"><i class="ri-error-warning-line me-2"></i> Xác nhận Xóa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa món đồ này không?</p>
+                    <p class="text-danger fw-bold">Hành động này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="footer-py-60 text-center">
+                        <p class="mb-0 text-muted">© 2024 LookAI. Thiết kế bởi <a href="#" target="_blank" class="text-reset">LookAI Team</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#" onclick="topFunction()" id="back-to-top" class="back-to-top fs-5"><i data-feather="arrow-up" class="fea icon-sm icons align-middle"></i></a>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/feather.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    
+    <script>
+        // *** ĐỊNH NGHĨA BIẾN QUAN TRỌNG ***
+        // (Thay đổi URL này nếu bạn dùng VS Code Tunnel)
+        const API_BASE_URL = 'https://mlpn8h4s-3000.asse.devtunnels.ms'; 
+        
+        let allItems = []; // Biến toàn cục để lưu trữ tất cả item, dùng cho filter
+        let editModal = null; // Biến toàn cục để lưu trữ modal SỬA
+        let deleteModal = null; // Biến toàn cục để lưu trữ modal XÓA
+
+        // *** CÁC HÀM XỬ LÝ ***
+
+        /**
+         * 1. Tải Thống Kê
+         */
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet/stats`);
+                const data = await response.json();
+                if (data.success) {
+                    const stats = data.statistics;
+                    const byCategory = stats.byCategory || {};
+                    document.getElementById('totalItems').innerText = stats.totalItems || 0;
+                    document.getElementById('topsCount').innerText = byCategory['Áo'] || 0;
+                    document.getElementById('bottomsCount').innerText = byCategory['Quần'] || 0;
+                    document.getElementById('dressesCount').innerText = byCategory['Váy'] || 0;
+                    document.getElementById('shoesCount').innerText = byCategory['Giày dép'] || 0;
+                    document.getElementById('accessoriesCount').innerText = byCategory['Phụ kiện'] || 0;
+                    document.getElementById('outerwearCount').innerText = byCategory['Áo khoác'] || 0;
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải thống kê:', error);
+            }
+        }
+
+        /**
+         * 2. Tải Tủ Đồ
+         */
+        async function loadWardrobe() {
+            const wardrobeGrid = document.getElementById('wardrobeGrid');
+            wardrobeGrid.innerHTML = '<p class="text-center">Đang tải tủ đồ...</p>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet`);
+                const data = await response.json();
+                if (data.success && data.items) {
+                    allItems = data.items;
+                    displayItems(allItems);
+                } else {
+                    wardrobeGrid.innerHTML = '<p class="text-center text-danger">Không thể tải tủ đồ.</p>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải tủ đồ:', error);
+                wardrobeGrid.innerHTML = `<p class="text-center text-danger">Lỗi kết nối: ${error.message}</p>`;
+            }
+        }
+
+        /**
+         * 3. Hiển thị Item
+         */
+        function displayItems(items) {
+            const wardrobeGrid = document.getElementById('wardrobeGrid');
+            wardrobeGrid.innerHTML = ''; 
+
+            if (items.length === 0) {
+                wardrobeGrid.innerHTML = '<p class="text-center text-muted">Tủ đồ của bạn đang trống.</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const statusColor = item.status === 'Sạch sẽ' ? 'success' : (item.status === 'Cần giặt' ? 'warning' : 'info');
+                const purposeBadge = item.purpose ? `<span class="ms-2"><i class="ri-price-tag-3-line me-1"></i>${item.purpose}</span>` : '';
+                const imageUrl = `${API_BASE_URL}${item.imageUrl}`;
+
+                const itemHtml = `
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 wardrobe-item" data-category="${item.category}">
+                        <div class="card border-0 shadow rounded overflow-hidden">
+                            <div class="position-relative">
+                                <img src="${imageUrl}" class="card-img-top item-image" alt="${item.itemName}">
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-primary">${item.category}</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title mb-2">${item.itemName}</h6>
+                                <p class="text-muted small mb-2">
+                                    <i class="ri-palette-line me-1"></i>${item.color || 'N/A'}
+                                    ${purposeBadge}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-${statusColor}">
+                                        <i class="ri-check-line me-1"></i>${item.status}
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-secondary btn-sm" title="Sửa" onclick="openEditModal('${item._id}')">
+                                            <i class="ri-edit-2-line"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" title="Xóa" onclick="deleteItem('${item._id}')">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                wardrobeGrid.innerHTML += itemHtml;
+            });
+        }
+        
+        /**
+         * 4. Xử lý Form Thêm Đồ
+         */
+        async function handleFormSubmit(event) {
+            event.preventDefault(); 
+            const form = event.target;
+            const messageDiv = document.getElementById('formMessage');
+            messageDiv.innerHTML = '<span class="text-info">Đang tải lên, vui lòng chờ...</span>';
+
+            const formData = new FormData();
+            formData.append('itemName', document.getElementById('itemName').value);
+            formData.append('category', document.getElementById('itemCategory').value);
+            formData.append('color', document.getElementById('itemColor').value);
+            formData.append('purpose', document.getElementById('itemPurpose').value);
+            formData.append('status', document.getElementById('itemStatus').value);
+            
+            const imageFile = document.getElementById('itemImage').files[0];
+            if (!imageFile) {
+                messageDiv.innerHTML = '<span class="text-danger">Vui lòng chọn một file ảnh.</span>';
+                return;
+            }
+            formData.append('image', imageFile);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet/add`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    messageDiv.innerHTML = '<span class="text-success">Thêm món đồ thành công!</span>';
+                    form.reset(); 
+                    await loadWardrobe(); 
+                    await loadStats(); 
+                } else {
+                    messageDiv.innerHTML = `<span class="text-danger">Lỗi: ${data.error}</span>`;
+                }
+            } catch (error) {
+                console.error('Lỗi khi submit form:', error);
+                messageDiv.innerHTML = `<span class="text-danger">Lỗi kết nối: ${error.message}</span>`;
+            }
+        }
+        
+        /**
+         * 5. Thiết lập Lọc
+         */
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('#filterButtons .btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    const filter = this.getAttribute('data-filter');
+                    
+                    if (filter === 'all') {
+                        displayItems(allItems);
+                    } else {
+                        const filteredItems = allItems.filter(item => item.category === filter);
+                        displayItems(filteredItems);
+                    }
+                });
+            });
+        }
+        
+        /**
+         * 6. CẬP NHẬT: Hàm Xóa Item
+         * Mở modal xác nhận thay vì dùng 'confirm()'
+         */
+        async function deleteItem(itemId) {
+            // 1. Lấy nút "Xác nhận Xóa"
+            const confirmButton = document.getElementById('confirmDeleteButton');
+            
+            // 2. Gắn ID của item vào nút (để hàm 'handleConfirmDelete' có thể lấy)
+            confirmButton.dataset.itemId = itemId;
+
+            // 3. Khởi tạo và hiển thị modal
+            if (!deleteModal) {
+                 deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            }
+            deleteModal.show();
+        }
+
+        /**
+         * 7. Mở Modal Chỉnh Sửa
+         */
+        function openEditModal(itemId) {
+            const item = allItems.find(i => i._id === itemId);
+            if (!item) {
+                alert('Không tìm thấy item!');
+                return;
+            }
+
+            document.getElementById('editItemId').value = item._id;
+            document.getElementById('editItemName').value = item.itemName;
+            document.getElementById('editItemCategory').value = item.category;
+            document.getElementById('editItemColor').value = item.color || '';
+            document.getElementById('editItemPurpose').value = item.purpose;
+            document.getElementById('editItemStatus').value = item.status;
+            document.getElementById('editCurrentImage').innerText = item.imageUrl.split('/').pop();
+            
+            document.getElementById('editItemImage').value = null; 
+            document.getElementById('editFormMessage').innerHTML = '';
+
+            if (!editModal) {
+                 editModal = new bootstrap.Modal(document.getElementById('editItemModal'));
+            }
+            editModal.show();
+        }
+
+        /**
+         * 8. Xử lý Form Sửa Đồ
+         */
+        async function handleEditFormSubmit(event) {
+            event.preventDefault();
+            const messageDiv = document.getElementById('editFormMessage');
+            messageDiv.innerHTML = '<span class="text-info">Đang cập nhật...</span>';
+
+            const itemId = document.getElementById('editItemId').value;
+            
+            const formData = new FormData();
+            formData.append('itemName', document.getElementById('editItemName').value);
+            formData.append('category', document.getElementById('editItemCategory').value);
+            formData.append('color', document.getElementById('editItemColor').value);
+            formData.append('purpose', document.getElementById('editItemPurpose').value);
+            formData.append('status', document.getElementById('editItemStatus').value);
+
+            const imageFile = document.getElementById('editItemImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet/${itemId}`, {
+                    method: 'PUT',
+                    body: formData 
+                });
+                const data = await response.json();
+                if (data.success) {
+                    messageDiv.innerHTML = '<span class="text-success">Cập nhật thành công!</span>';
+                    setTimeout(() => { editModal.hide(); }, 1000);
+                    await loadWardrobe(); 
+                    await loadStats(); 
+                } else {
+                    messageDiv.innerHTML = `<span class="text-danger">Lỗi: ${data.error}</span>`;
+                }
+            } catch (error) {
+                console.error('Lỗi khi submit form sửa:', error);
+                messageDiv.innerHTML = `<span class="text-danger">Lỗi kết nối: ${error.message}</span>`;
+            }
+        }
+        
+        /**
+         * 9. THÊM MỚI: Xử lý khi nhấn nút "Xác nhận Xóa" trên Modal
+         */
+        async function handleConfirmDelete() {
+            const confirmButton = document.getElementById('confirmDeleteButton');
+            const itemId = confirmButton.dataset.itemId; // Lấy ID từ nút
+            
+            if (!itemId) return;
+
+            // Vô hiệu hóa nút để tránh click đúp
+            confirmButton.disabled = true;
+            confirmButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xóa...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/closet/${itemId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    // Ẩn modal
+                    deleteModal.hide();
+                    await loadWardrobe(); // Tải lại tủ đồ
+                    await loadStats(); // Tải lại thống kê
+                } else {
+                    // Nếu lỗi, vẫn ẩn modal và hiện alert
+                    deleteModal.hide();
+                    alert(`Lỗi khi xóa: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa item:', error);
+                deleteModal.hide();
+                alert(`Lỗi kết nối: ${error.message}`);
+            } finally {
+                // Kích hoạt lại nút
+                confirmButton.disabled = false;
+                confirmButton.innerHTML = 'Xóa';
+                confirmButton.dataset.itemId = ''; // Xóa ID
+            }
+        }
+
+
+        // *** CHẠY KHI TẢI TRANG ***
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Gắn sự kiện submit cho form THÊM
+            const addItemForm = document.getElementById('addItemForm');
+            addItemForm.addEventListener('submit', handleFormSubmit);
+
+            // Gắn sự kiện submit cho form SỬA
+            const editItemForm = document.getElementById('editItemForm');
+            editItemForm.addEventListener('submit', handleEditFormSubmit);
+
+            // Gắn sự kiện click cho nút XÁC NHẬN XÓA
+            const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+            confirmDeleteButton.addEventListener('click', handleConfirmDelete);
+
+            // Tải dữ liệu ban đầu
+            loadWardrobe();
+            loadStats();
+            
+            // Kích hoạt các nút lọc
+            setupFilters();
+
+            // Khởi tạo feather icons
+            feather.replace();
+        });
+    </script>
+</body>
+</html>
